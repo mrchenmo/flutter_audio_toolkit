@@ -5,7 +5,6 @@ homepage: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit
 repository: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit
 issue_tracker: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit/issues
 documentation: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit#readme
-publish_to: null
 
 topics:
   - audio
