@@ -12,7 +12,9 @@ class MethodChannelFlutterAudioToolkit extends FlutterAudioToolkitPlatform {
 
   @override
   Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version = await methodChannel.invokeMethod<String>(
+      'getPlatformVersion',
+    );
     return version;
   }
 
@@ -34,14 +36,21 @@ class MethodChannelFlutterAudioToolkit extends FlutterAudioToolkitPlatform {
     };
     if (onProgress != null) {
       // Set up progress listener
-      const EventChannel('flutter_audio_toolkit/progress').receiveBroadcastStream().listen((dynamic data) {
+      const EventChannel(
+        'flutter_audio_toolkit/progress',
+      ).receiveBroadcastStream().listen((dynamic data) {
         if (data is Map && data['operation'] == 'convert') {
           onProgress(data['progress']?.toDouble() ?? 0.0);
         }
       });
     }
-    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>('convertAudio', arguments);
-    final Map<String, dynamic> conversionResult = Map<String, dynamic>.from(result ?? {});
+    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>(
+      'convertAudio',
+      arguments,
+    );
+    final Map<String, dynamic> conversionResult = Map<String, dynamic>.from(
+      result ?? {},
+    );
 
     return ConversionResult(
       outputPath: conversionResult['outputPath'],
@@ -57,17 +66,27 @@ class MethodChannelFlutterAudioToolkit extends FlutterAudioToolkitPlatform {
     int samplesPerSecond = 100,
     ProgressCallback? onProgress,
   }) async {
-    final Map<String, dynamic> arguments = {'inputPath': inputPath, 'samplesPerSecond': samplesPerSecond};
+    final Map<String, dynamic> arguments = {
+      'inputPath': inputPath,
+      'samplesPerSecond': samplesPerSecond,
+    };
     if (onProgress != null) {
       // Set up progress listener
-      const EventChannel('flutter_audio_toolkit/progress').receiveBroadcastStream().listen((dynamic data) {
+      const EventChannel(
+        'flutter_audio_toolkit/progress',
+      ).receiveBroadcastStream().listen((dynamic data) {
         if (data is Map && data['operation'] == 'waveform') {
           onProgress(data['progress']?.toDouble() ?? 0.0);
         }
       });
     }
-    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>('extractWaveform', arguments);
-    final Map<String, dynamic> waveformResult = Map<String, dynamic>.from(result ?? {});
+    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>(
+      'extractWaveform',
+      arguments,
+    );
+    final Map<String, dynamic> waveformResult = Map<String, dynamic>.from(
+      result ?? {},
+    );
 
     return WaveformData(
       amplitudes: List<double>.from(waveformResult['amplitudes']),
@@ -79,13 +98,18 @@ class MethodChannelFlutterAudioToolkit extends FlutterAudioToolkitPlatform {
 
   @override
   Future<bool> isFormatSupported(String inputPath) async {
-    final bool result = await methodChannel.invokeMethod('isFormatSupported', {'inputPath': inputPath});
+    final bool result = await methodChannel.invokeMethod('isFormatSupported', {
+      'inputPath': inputPath,
+    });
     return result;
   }
 
   @override
   Future<Map<String, dynamic>> getAudioInfo(String inputPath) async {
-    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>('getAudioInfo', {'inputPath': inputPath});
+    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>(
+      'getAudioInfo',
+      {'inputPath': inputPath},
+    );
     return Map<String, dynamic>.from(result ?? {});
   }
 
@@ -111,14 +135,21 @@ class MethodChannelFlutterAudioToolkit extends FlutterAudioToolkitPlatform {
     };
     if (onProgress != null) {
       // Set up progress listener
-      const EventChannel('flutter_audio_toolkit/progress').receiveBroadcastStream().listen((dynamic data) {
+      const EventChannel(
+        'flutter_audio_toolkit/progress',
+      ).receiveBroadcastStream().listen((dynamic data) {
         if (data is Map && data['operation'] == 'trim') {
           onProgress(data['progress']?.toDouble() ?? 0.0);
         }
       });
     }
-    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>('trimAudio', arguments);
-    final Map<String, dynamic> trimResult = Map<String, dynamic>.from(result ?? {});
+    final result = await methodChannel.invokeMethod<Map<Object?, Object?>>(
+      'trimAudio',
+      arguments,
+    );
+    final Map<String, dynamic> trimResult = Map<String, dynamic>.from(
+      result ?? {},
+    );
 
     return ConversionResult(
       outputPath: trimResult['outputPath'],

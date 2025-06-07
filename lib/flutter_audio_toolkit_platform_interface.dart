@@ -9,7 +9,8 @@ abstract class FlutterAudioToolkitPlatform extends PlatformInterface {
 
   static final Object _token = Object();
 
-  static FlutterAudioToolkitPlatform _instance = MethodChannelFlutterAudioToolkit();
+  static FlutterAudioToolkitPlatform _instance =
+      MethodChannelFlutterAudioToolkit();
 
   /// The default instance of [FlutterAudioToolkitPlatform] to use.
   ///

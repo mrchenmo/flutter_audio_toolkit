@@ -8,7 +8,11 @@ class TrimmingWidget extends StatelessWidget {
   final AppState appState;
   final VoidCallback onStateChanged;
 
-  const TrimmingWidget({super.key, required this.appState, required this.onStateChanged});
+  const TrimmingWidget({
+    super.key,
+    required this.appState,
+    required this.onStateChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,10 @@ class TrimmingWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Audio Trimming', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Audio Trimming',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             // Format selection
             Row(
@@ -30,9 +37,18 @@ class TrimmingWidget extends StatelessWidget {
                 DropdownButton<AudioFormat>(
                   value: appState.selectedTrimFormat,
                   items: const [
-                    DropdownMenuItem(value: AudioFormat.copy, child: Text('Copy (Lossless)')),
-                    DropdownMenuItem(value: AudioFormat.aac, child: Text('AAC (Lossy)')),
-                    DropdownMenuItem(value: AudioFormat.m4a, child: Text('M4A (Lossy)')),
+                    DropdownMenuItem(
+                      value: AudioFormat.copy,
+                      child: Text('Copy (Lossless)'),
+                    ),
+                    DropdownMenuItem(
+                      value: AudioFormat.aac,
+                      child: Text('AAC (Lossy)'),
+                    ),
+                    DropdownMenuItem(
+                      value: AudioFormat.m4a,
+                      child: Text('M4A (Lossy)'),
+                    ),
                   ],
                   onChanged: (AudioFormat? value) {
                     if (value != null) {
@@ -56,7 +72,9 @@ class TrimmingWidget extends StatelessWidget {
               ),
             const SizedBox(height: 16),
             if (appState.audioInfo != null) ...[
-              Text('Duration: ${(appState.audioInfo!['durationMs'] / 1000).toStringAsFixed(1)}s'),
+              Text(
+                'Duration: ${(appState.audioInfo!['durationMs'] / 1000).toStringAsFixed(1)}s',
+              ),
               const SizedBox(height: 8),
               const Text('Start Time (seconds):'),
               Slider(
@@ -71,7 +89,10 @@ class TrimmingWidget extends StatelessWidget {
 
                   // Ensure end time maintains minimum 1 second gap
                   if (appState.trimEndMs <= appState.trimStartMs) {
-                    appState.trimEndMs = (appState.trimStartMs + 1000).clamp(1000, durationMs);
+                    appState.trimEndMs = (appState.trimStartMs + 1000).clamp(
+                      1000,
+                      durationMs,
+                    );
                   }
                   onStateChanged();
                 },
@@ -90,7 +111,10 @@ class TrimmingWidget extends StatelessWidget {
 
                   // Ensure start time maintains minimum 1 second gap
                   if (appState.trimStartMs >= appState.trimEndMs) {
-                    appState.trimStartMs = (appState.trimEndMs - 1000).clamp(0, durationMs - 1000);
+                    appState.trimStartMs = (appState.trimEndMs - 1000).clamp(
+                      0,
+                      durationMs - 1000,
+                    );
                   }
                   onStateChanged();
                 },
@@ -104,7 +128,9 @@ class TrimmingWidget extends StatelessWidget {
             ],
             ElevatedButton(
               onPressed:
-                  (appState.isTrimming || appState.selectedFilePath == null || appState.audioInfo == null)
+                  (appState.isTrimming ||
+                          appState.selectedFilePath == null ||
+                          appState.audioInfo == null)
                       ? null
                       : _trimAudio,
               child: const Text('Trim Audio'),
@@ -113,11 +139,15 @@ class TrimmingWidget extends StatelessWidget {
               const SizedBox(height: 16),
               LinearProgressIndicator(value: appState.trimProgress),
               const SizedBox(height: 8),
-              Text('Trimming: ${(appState.trimProgress * 100).toStringAsFixed(1)}%'),
+              Text(
+                'Trimming: ${(appState.trimProgress * 100).toStringAsFixed(1)}%',
+              ),
             ],
             if (appState.trimmedFilePath != null) ...[
               const SizedBox(height: 16),
-              Text('Trimmed file: ${appState.trimmedFilePath!.split('/').last}'),
+              Text(
+                'Trimmed file: ${appState.trimmedFilePath!.split('/').last}',
+              ),
             ],
           ],
         ),

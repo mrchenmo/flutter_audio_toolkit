@@ -10,7 +10,11 @@ class FilePickerWidget extends StatelessWidget {
   final AppState appState;
   final VoidCallback onError;
 
-  const FilePickerWidget({super.key, required this.appState, required this.onError});
+  const FilePickerWidget({
+    super.key,
+    required this.appState,
+    required this.onError,
+  });
 
   Future<void> _pickAudioFile() async {
     // Request permissions first
@@ -54,7 +58,8 @@ class FilePickerWidget extends StatelessWidget {
         if (await ValidationService.validateFormatSupport(appState)) {
           await AudioService.getAudioInfo(appState);
           // Initialize trim end time to audio duration
-          if (appState.audioInfo != null && appState.audioInfo!['durationMs'] != null) {
+          if (appState.audioInfo != null &&
+              appState.audioInfo!['durationMs'] != null) {
             appState.trimEndMs = appState.audioInfo!['durationMs'] as int;
           }
         }
@@ -88,7 +93,10 @@ class FilePickerWidget extends StatelessWidget {
           children: [
             Text('Platform: ${appState.platformVersion}'),
             const SizedBox(height: 8),
-            ElevatedButton(onPressed: _pickAudioFile, child: const Text('Pick Audio File')),
+            ElevatedButton(
+              onPressed: _pickAudioFile,
+              child: const Text('Pick Audio File'),
+            ),
             if (appState.selectedFilePath != null) ...[
               const SizedBox(height: 8),
               Text('Selected: ${appState.selectedFilePath!.split('/').last}'),
@@ -97,7 +105,10 @@ class FilePickerWidget extends StatelessWidget {
             const SizedBox(height: 16),
             const Divider(),
             const SizedBox(height: 8),
-            const Text('Or process from Network URL:', style: TextStyle(fontWeight: FontWeight.w500)),
+            const Text(
+              'Or process from Network URL:',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
             const SizedBox(height: 8),
             TextField(
               controller: appState.urlController,
@@ -115,7 +126,9 @@ class FilePickerWidget extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed:
-                        (appState.isDownloading || appState.isExtracting || appState.urlController.text.trim().isEmpty)
+                        (appState.isDownloading ||
+                                appState.isExtracting ||
+                                appState.urlController.text.trim().isEmpty)
                             ? null
                             : _processUrlFile,
                     icon: const Icon(Icons.cloud_download),
@@ -126,7 +139,8 @@ class FilePickerWidget extends StatelessWidget {
                 Expanded(
                   child: ElevatedButton.icon(
                     onPressed:
-                        (appState.isExtracting || appState.urlController.text.trim().isEmpty)
+                        (appState.isExtracting ||
+                                appState.urlController.text.trim().isEmpty)
                             ? null
                             : _generateFakeWaveformFromUrl,
                     icon: const Icon(Icons.auto_fix_high),
@@ -144,7 +158,9 @@ class FilePickerWidget extends StatelessWidget {
               const SizedBox(height: 16),
               LinearProgressIndicator(value: appState.downloadProgress),
               const SizedBox(height: 8),
-              Text('Downloading: ${(appState.downloadProgress * 100).toStringAsFixed(1)}%'),
+              Text(
+                'Downloading: ${(appState.downloadProgress * 100).toStringAsFixed(1)}%',
+              ),
             ],
           ],
         ),

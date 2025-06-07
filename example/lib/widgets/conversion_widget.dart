@@ -8,7 +8,11 @@ class ConversionWidget extends StatelessWidget {
   final AppState appState;
   final VoidCallback onStateChanged;
 
-  const ConversionWidget({super.key, required this.appState, required this.onStateChanged});
+  const ConversionWidget({
+    super.key,
+    required this.appState,
+    required this.onStateChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,20 +24,29 @@ class ConversionWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Audio Conversion', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text(
+              'Audio Conversion',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: appState.isConverting ? null : () => _convertAudio(AudioFormat.aac),
+                    onPressed:
+                        appState.isConverting
+                            ? null
+                            : () => _convertAudio(AudioFormat.aac),
                     child: const Text('Convert to AAC'),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: appState.isConverting ? null : () => _convertAudio(AudioFormat.m4a),
+                    onPressed:
+                        appState.isConverting
+                            ? null
+                            : () => _convertAudio(AudioFormat.m4a),
                     child: const Text('Convert to M4A'),
                   ),
                 ),
@@ -43,11 +56,15 @@ class ConversionWidget extends StatelessWidget {
               const SizedBox(height: 16),
               LinearProgressIndicator(value: appState.conversionProgress),
               const SizedBox(height: 8),
-              Text('Converting: ${(appState.conversionProgress * 100).toStringAsFixed(1)}%'),
+              Text(
+                'Converting: ${(appState.conversionProgress * 100).toStringAsFixed(1)}%',
+              ),
             ],
             if (appState.convertedFilePath != null) ...[
               const SizedBox(height: 16),
-              Text('Converted file: ${appState.convertedFilePath!.split('/').last}'),
+              Text(
+                'Converted file: ${appState.convertedFilePath!.split('/').last}',
+              ),
             ],
           ],
         ),

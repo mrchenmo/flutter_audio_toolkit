@@ -43,7 +43,12 @@ class WaveformData {
   final int durationMs;
   final int channels;
 
-  WaveformData({required this.amplitudes, required this.sampleRate, required this.durationMs, required this.channels});
+  WaveformData({
+    required this.amplitudes,
+    required this.sampleRate,
+    required this.durationMs,
+    required this.channels,
+  });
 }
 
 /// Progress callback for conversion operations
@@ -172,7 +177,10 @@ class FlutterAudioToolkit {
       switch (pattern) {
         case WaveformPattern.sine:
           // Smooth sine wave with slight variations
-          amplitude = 0.5 + 0.3 * sin(2 * pi * frequency * t / 1000) + 0.1 * sin(2 * pi * frequency * t / 300);
+          amplitude =
+              0.5 +
+              0.3 * sin(2 * pi * frequency * t / 1000) +
+              0.1 * sin(2 * pi * frequency * t / 300);
           break;
 
         case WaveformPattern.random:
@@ -183,7 +191,8 @@ class FlutterAudioToolkit {
           // Music-like pattern with beats, crescendos, and variations
           final bassFreq = 60 + 40 * sin(2 * pi * t / 8); // 8-second bass cycle
           final midFreq = 200 + 100 * sin(2 * pi * t / 4); // 4-second mid cycle
-          final highFreq = 800 + 400 * sin(2 * pi * t / 2); // 2-second high cycle
+          final highFreq =
+              800 + 400 * sin(2 * pi * t / 2); // 2-second high cycle
 
           final bass = 0.6 * sin(2 * pi * bassFreq * t / 100);
           final mid = 0.4 * sin(2 * pi * midFreq * t / 100);
@@ -196,7 +205,10 @@ class FlutterAudioToolkit {
 
           // Add some dynamics
           if (timeRatio < 0.1 || timeRatio > 0.9) {
-            amplitude *= timeRatio < 0.1 ? timeRatio * 10 : (1 - timeRatio) * 10; // Fade in/out
+            amplitude *=
+                timeRatio < 0.1
+                    ? timeRatio * 10
+                    : (1 - timeRatio) * 10; // Fade in/out
           }
           break;
 
@@ -206,7 +218,8 @@ class FlutterAudioToolkit {
 
           if (speechCycle < 0.3) {
             // Silence (pause between words)
-            amplitude = 0.05 + random.nextDouble() * 0.05; // Very low background noise
+            amplitude =
+                0.05 + random.nextDouble() * 0.05; // Very low background noise
           } else if (speechCycle < 0.7) {
             // Speech segment with consonants and vowels
             final intensity = 0.3 + 0.4 * sin(2 * pi * speechCycle * 5);
@@ -240,7 +253,8 @@ class FlutterAudioToolkit {
 
         case WaveformPattern.fade:
           // Gradual fade in and out pattern
-          final fadeCycle = (t / (durationMs / 1000.0)); // 0 to 1 over full duration
+          final fadeCycle =
+              (t / (durationMs / 1000.0)); // 0 to 1 over full duration
           final baseWave = 0.5 + 0.3 * sin(2 * pi * frequency * t / 100);
 
           if (fadeCycle < 0.3) {
@@ -267,7 +281,8 @@ class FlutterAudioToolkit {
             amplitude = 0.5 * (1 - (burstCycle - 0.2) / 0.2);
           } else {
             // Quiet period with occasional small spikes
-            amplitude = random.nextDouble() < 0.05 ? 0.3 * random.nextDouble() : 0.02;
+            amplitude =
+                random.nextDouble() < 0.05 ? 0.3 * random.nextDouble() : 0.02;
           }
           break;
       }
@@ -277,7 +292,12 @@ class FlutterAudioToolkit {
       amplitudes.add(amplitude);
     }
 
-    return WaveformData(amplitudes: amplitudes, sampleRate: sampleRate, durationMs: durationMs, channels: channels);
+    return WaveformData(
+      amplitudes: amplitudes,
+      sampleRate: sampleRate,
+      durationMs: durationMs,
+      channels: channels,
+    );
   }
 
   /// Downloads an audio file from a network URL and extracts its waveform
@@ -302,7 +322,9 @@ class FlutterAudioToolkit {
         url,
         localPath,
         onProgress: (progress) {
-          onDownloadProgress?.call(progress * 0.5); // Download takes 50% of total progress
+          onDownloadProgress?.call(
+            progress * 0.5,
+          ); // Download takes 50% of total progress
         },
       );
 
@@ -311,7 +333,9 @@ class FlutterAudioToolkit {
         inputPath: localPath,
         samplesPerSecond: samplesPerSecond,
         onProgress: (progress) {
-          onExtractionProgress?.call(0.5 + progress * 0.5); // Extraction takes remaining 50%
+          onExtractionProgress?.call(
+            0.5 + progress * 0.5,
+          ); // Extraction takes remaining 50%
         },
       );
 
@@ -355,7 +379,8 @@ class FlutterAudioToolkit {
     final seededRandom = Random(urlHash);
 
     // Modify the pattern generation to use the seeded random
-    final totalSamples = (estimatedDurationMs / 1000.0 * samplesPerSecond).round();
+    final totalSamples =
+        (estimatedDurationMs / 1000.0 * samplesPerSecond).round();
     final amplitudes = <double>[];
 
     for (int i = 0; i < totalSamples; i++) {
@@ -366,7 +391,10 @@ class FlutterAudioToolkit {
 
       switch (pattern) {
         case WaveformPattern.sine:
-          amplitude = 0.5 + 0.3 * sin(2 * pi * frequency * t / 100) + 0.1 * sin(2 * pi * frequency * t / 30);
+          amplitude =
+              0.5 +
+              0.3 * sin(2 * pi * frequency * t / 100) +
+              0.1 * sin(2 * pi * frequency * t / 30);
           // Add URL-specific variation
           amplitude += 0.1 * seededRandom.nextDouble() - 0.05;
           break;
@@ -446,7 +474,10 @@ class FlutterAudioToolkit {
           } else if (burstCycle < 0.4) {
             amplitude = 0.5 * (1 - (burstCycle - 0.2) / 0.2);
           } else {
-            amplitude = seededRandom.nextDouble() < 0.05 ? 0.3 * seededRandom.nextDouble() : 0.02;
+            amplitude =
+                seededRandom.nextDouble() < 0.05
+                    ? 0.3 * seededRandom.nextDouble()
+                    : 0.02;
           }
           break;
       }
@@ -455,11 +486,20 @@ class FlutterAudioToolkit {
       amplitudes.add(amplitude);
     }
 
-    return WaveformData(amplitudes: amplitudes, sampleRate: 44100, durationMs: estimatedDurationMs, channels: 2);
+    return WaveformData(
+      amplitudes: amplitudes,
+      sampleRate: 44100,
+      durationMs: estimatedDurationMs,
+      channels: 2,
+    );
   }
 
   /// Private helper method to download a file from URL with progress tracking
-  Future<void> _downloadFile(String url, String outputPath, {ProgressCallback? onProgress}) async {
+  Future<void> _downloadFile(
+    String url,
+    String outputPath, {
+    ProgressCallback? onProgress,
+  }) async {
     final uri = Uri.parse(url);
     final request = http.Request('GET', uri);
     final response = await request.send();
@@ -502,7 +542,11 @@ class FlutterAudioToolkit {
   /// [url] - URL of the audio file to download
   /// [outputPath] - Local path where the downloaded file will be saved
   /// [onProgress] - Optional callback for download progress
-  Future<String> downloadFile(String url, String outputPath, {ProgressCallback? onProgress}) async {
+  Future<String> downloadFile(
+    String url,
+    String outputPath, {
+    ProgressCallback? onProgress,
+  }) async {
     await _downloadFile(url, outputPath, onProgress: onProgress);
     return outputPath;
   }

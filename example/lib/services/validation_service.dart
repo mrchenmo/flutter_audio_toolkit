@@ -22,7 +22,9 @@ class ValidationService {
     final fileSize = await file.length();
     if (fileSize > 50 * 1024 * 1024) {
       if (kDebugMode) {
-        print('Warning: Large file (${(fileSize / (1024 * 1024)).toStringAsFixed(1)}MB) may take longer to process');
+        print(
+          'Warning: Large file (${(fileSize / (1024 * 1024)).toStringAsFixed(1)}MB) may take longer to process',
+        );
       }
     }
 
@@ -34,7 +36,9 @@ class ValidationService {
     if (appState.selectedFilePath == null) return false;
 
     try {
-      final isSupported = await appState.audioToolkit.isFormatSupported(appState.selectedFilePath!);
+      final isSupported = await appState.audioToolkit.isFormatSupported(
+        appState.selectedFilePath!,
+      );
       return isSupported;
     } catch (e) {
       if (kDebugMode) {
@@ -52,7 +56,9 @@ class ValidationService {
 
     if (appState.audioInfo!['isValid'] == false) {
       final error = appState.audioInfo!['error'] ?? 'Unknown error';
-      final details = appState.audioInfo!['details'] ?? 'The selected file cannot be processed';
+      final details =
+          appState.audioInfo!['details'] ??
+          'The selected file cannot be processed';
       if (kDebugMode) {
         print('Invalid audio file: $error. $details');
       }
@@ -111,7 +117,8 @@ class ValidationService {
   static bool validateTrimFormat(AppState appState) {
     // Check if lossless trimming is selected but not supported
     if (appState.selectedTrimFormat == AudioFormat.copy) {
-      final supportedForLossless = appState.audioInfo!['supportedForLosslessTrimming'] == true;
+      final supportedForLossless =
+          appState.audioInfo!['supportedForLosslessTrimming'] == true;
       if (!supportedForLossless) {
         final mime = appState.audioInfo!['mime'] ?? 'unknown';
         if (kDebugMode) {
@@ -131,7 +138,8 @@ class ValidationService {
   static Future<bool> validateStoragePermissions() async {
     if (Platform.isAndroid) {
       final hasStoragePermission = await Permission.storage.isGranted;
-      final hasManageStoragePermission = await Permission.manageExternalStorage.isGranted;
+      final hasManageStoragePermission =
+          await Permission.manageExternalStorage.isGranted;
 
       if (!hasStoragePermission && !hasManageStoragePermission) {
         if (kDebugMode) {
