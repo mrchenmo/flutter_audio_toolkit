@@ -456,3 +456,256 @@ extension FlutterAudioToolkitPlugin: FlutterStreamHandler {
         return nil
     }
 }
+
+// MARK: - Private Helper Methods
+
+private extension FlutterAudioToolkitPlugin {
+    
+    /// Extracts waveform data from an audio file
+    func extractWaveformData(inputPath: String, samplesPerSecond: Int) throws -> [String: Any] {
+        let inputURL = URL(fileURLWithPath: inputPath)
+        let asset = AVAsset(url: inputURL)
+        
+        guard let audioTrack = asset.tracks(withMediaType: .audio).first else {
+            throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "No audio track found"])
+        }
+        
+        // Configure audio session
+        try configureAudioSession()
+        
+        let reader = try AVAssetReader(asset: asset)
+        
+        // Audio output settings for PCM data
+        let outputSettings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatLinearPCM,
+            AVLinearPCMBitDepthKey: 16,
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsFloatKey: false,
+            AVLinearPCMIsNonInterleaved: false
+        ]
+        
+        let readerOutput = AVAssetReaderTrackOutput(track: audioTrack, outputSettings: outputSettings)
+        reader.add(readerOutput)
+        
+        guard reader.startReading() else {
+            throw NSError(domain: "AudioConverter", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to start reading audio data"])
+        }
+        
+        var amplitudes: [Double] = []
+        let duration = CMTimeGetSeconds(asset.duration)
+        let durationMs = Int(duration * 1000)
+        
+        // Get audio format description
+        guard let formatDescriptions = audioTrack.formatDescriptions.first as? CMAudioFormatDescription else {
+            throw NSError(domain: "AudioConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
+        }
+        
+        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescriptions)
+        let sampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
+        let channels = Int(audioStreamBasicDescription?.pointee.mChannelsPerFrame ?? 2)
+        
+        // Calculate sampling parameters
+        let totalSamples = (durationMs * samplesPerSecond) / 1000
+        let samplesPerBatch = max(1, sampleRate / samplesPerSecond)
+        var sampleCount = 0
+        var currentBatchSamples = 0
+        var batchMaxAmplitude: Double = 0.0
+        
+        while reader.status == .reading {
+            guard let sampleBuffer = readerOutput.copyNextSampleBuffer() else { break }
+            
+            guard let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else {
+                CMSampleBufferInvalidate(sampleBuffer)
+                continue
+            }
+            
+            let length = CMBlockBufferGetDataLength(dataBuffer)
+            var data = Data(count: length)
+            
+            data.withUnsafeMutableBytes { bytes in
+                CMBlockBufferCopyDataBytes(dataBuffer, atOffset: 0, dataLength: length, destination: bytes.bindMemory(to: UInt8.self).baseAddress!)
+            }
+            
+            // Process 16-bit PCM samples
+            let sampleData = data.withUnsafeBytes { $0.bindMemory(to: Int16.self) }
+            
+            for sample in sampleData {
+                let amplitude = abs(Double(sample)) / 32768.0 // Normalize to 0.0-1.0
+                
+                if currentBatchSamples == 0 {
+                    batchMaxAmplitude = amplitude
+                } else {
+                    batchMaxAmplitude = max(batchMaxAmplitude, amplitude)
+                }
+                
+                currentBatchSamples += 1
+                
+                if currentBatchSamples >= samplesPerBatch {
+                    amplitudes.append(min(batchMaxAmplitude, 1.0))
+                    sampleCount += 1
+                    currentBatchSamples = 0
+                    batchMaxAmplitude = 0.0
+                    
+                    // Update progress
+                    let progress = min(Double(sampleCount) / Double(totalSamples), 1.0)
+                    DispatchQueue.main.async {
+                        self.progressEventSink?(["operation": "waveform", "progress": progress])
+                    }
+                    
+                    if sampleCount >= totalSamples { break }
+                }
+            }
+            
+            CMSampleBufferInvalidate(sampleBuffer)
+        }
+        
+        // Add any remaining batch
+        if currentBatchSamples > 0 && sampleCount < totalSamples {
+            amplitudes.append(min(batchMaxAmplitude, 1.0))
+        }
+        
+        reader.cancelReading()
+        
+        return [
+            "amplitudes": amplitudes,
+            "sampleRate": sampleRate,
+            "durationMs": durationMs,
+            "channels": channels
+        ]
+    }
+    
+    /// Checks if an audio format is supported for processing
+    func isAudioFormatSupported(inputPath: String) -> Bool {
+        let url = URL(fileURLWithPath: inputPath)
+        let asset = AVAsset(url: url)
+        
+        // Check if asset has audio tracks
+        guard !asset.tracks(withMediaType: .audio).isEmpty else {
+            return false
+        }
+        
+        // Check file extension
+        let pathExtension = url.pathExtension.lowercased()
+        let supportedExtensions = ["mp3", "m4a", "aac", "wav", "ogg", "mp4"]
+        
+        return supportedExtensions.contains(pathExtension)
+    }
+    
+    /// Gets comprehensive audio file information
+    func getAudioFileInfo(inputPath: String) throws -> [String: Any] {
+        let inputURL = URL(fileURLWithPath: inputPath)
+        
+        // Check if file exists
+        guard FileManager.default.fileExists(atPath: inputPath) else {
+            return [
+                "isValid": false,
+                "error": "File does not exist",
+                "details": "The selected file could not be found at the specified path."
+            ]
+        }
+        
+        let asset = AVAsset(url: inputURL)
+        let audioTracks = asset.tracks(withMediaType: .audio)
+        
+        guard let audioTrack = audioTracks.first else {
+            return [
+                "isValid": false,
+                "error": "No audio track found",
+                "details": "The file contains no audio tracks. Supported formats: mp3, m4a, aac, wav, ogg."
+            ]
+        }
+        
+        // Get file attributes
+        let fileAttributes = try FileManager.default.attributesOfItem(atPath: inputPath)
+        let fileSize = fileAttributes[.size] as? Int64 ?? 0
+        
+        // Get audio properties
+        let duration = CMTimeGetSeconds(asset.duration)
+        let durationMs = Int(duration * 1000)
+        
+        // Get format description
+        guard let formatDescriptions = audioTrack.formatDescriptions.first as? CMAudioFormatDescription else {
+            throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
+        }
+        
+        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescriptions)
+        let sampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
+        let channels = Int(audioStreamBasicDescription?.pointee.mChannelsPerFrame ?? 2)
+        let formatID = audioStreamBasicDescription?.pointee.mFormatID ?? kAudioFormatMPEG4AAC
+        
+        // Estimate bitrate
+        let bitRate = duration > 0 ? Int((Double(fileSize) * 8) / duration) : 320000
+        
+        // Determine MIME type from format ID
+        let mime: String
+        let formatDiagnostics: String
+        let supportedForLosslessTrimming: Bool
+        
+        switch formatID {
+        case kAudioFormatMPEGLayer3:
+            mime = "audio/mpeg"
+            formatDiagnostics = "MP3 format detected - Requires conversion for trimming"
+            supportedForLosslessTrimming = false
+        case kAudioFormatMPEG4AAC:
+            mime = "audio/mp4a-latm"
+            formatDiagnostics = "AAC/M4A format detected - Supports lossless trimming"
+            supportedForLosslessTrimming = true
+        case kAudioFormatLinearPCM:
+            mime = "audio/wav"
+            formatDiagnostics = "WAV format detected - Requires conversion for trimming"
+            supportedForLosslessTrimming = false
+        case kAudioFormatAppleLossless:
+            mime = "audio/mp4"
+            formatDiagnostics = "Apple Lossless format detected - Supports lossless trimming"
+            supportedForLosslessTrimming = true
+        default:
+            mime = "audio/unknown"
+            formatDiagnostics = "Unknown format - May require conversion"
+            supportedForLosslessTrimming = false
+        }
+        
+        let supportedForTrimming = true // iOS can handle most formats through conversion
+        
+        // Track information
+        let foundTracks = audioTracks.enumerated().map { index, track in
+            let trackFormatDescriptions = track.formatDescriptions
+            if let trackFormatDescription = trackFormatDescriptions.first as? CMAudioFormatDescription {
+                let trackBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(trackFormatDescription)
+                let trackFormatID = trackBasicDescription?.pointee.mFormatID ?? 0
+                return "Track \(index): \(fourCharCodeToString(trackFormatID))"
+            }
+            return "Track \(index): Unknown format"
+        }
+        
+        return [
+            "isValid": true,
+            "durationMs": durationMs,
+            "sampleRate": sampleRate,
+            "channels": channels,
+            "bitRate": bitRate,
+            "mime": mime,
+            "trackIndex": 0,
+            "fileSize": Int(fileSize),
+            "supportedForTrimming": supportedForTrimming,
+            "supportedForConversion": supportedForTrimming,
+            "supportedForWaveform": supportedForTrimming,
+            "supportedForLosslessTrimming": supportedForLosslessTrimming,
+            "formatDiagnostics": formatDiagnostics,
+            "foundTracks": foundTracks
+        ]
+    }
+    
+    /// Configures the audio session for processing
+    func configureAudioSession() throws {
+        let audioSession = AVAudioSession.sharedInstance()
+        
+        try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+        try audioSession.setActive(true)
+    }
+    
+    /// Helper function to convert FourCharCode to String
+    func fourCharCodeToString(_ code: FourCharCode) -> String {
+        let bytes = withUnsafeBytes(of: code.bigEndian) { Data($0) }
+        return String(data: bytes, encoding: .ascii) ?? "Unknown"
+    }
+}
