@@ -21,6 +21,11 @@ A comprehensive Flutter plugin for native audio processing that provides convers
 |----------|-----------------|----------------|-------------------|-------------------|----------------|
 | Android  | ✅ | ✅ | ✅ | ✅ | MediaCodec, MediaMuxer, MediaExtractor |
 | iOS      | ✅ | ✅ | ✅ | ✅ | AVAudioConverter, AVAssetExportSession, AVAssetReader |
+| macOS    | ✅ | ✅ | ✅ | ✅ | AVFoundation (same as iOS) |
+| Linux    | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Limited support (requires FFmpeg/GStreamer) |
+| Windows  | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Limited support (requires Media Foundation/FFmpeg) |
+
+> **Note**: Desktop platforms (Linux, Windows) have basic plugin structure but require additional audio processing libraries like FFmpeg or platform-specific APIs for full functionality. macOS has full support using AVFoundation.
 
 ### Supported Audio Formats
 

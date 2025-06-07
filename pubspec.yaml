@@ -1,10 +1,10 @@
 name: flutter_audio_toolkit
-description: "A Flutter plugin for audio conversion, trimming, and waveform extraction using native platform APIs. Supports MP3/WAV/OGG to AAC/M4A conversion, precise audio trimming, and waveform data extraction for visualization."
-version: 0.1.0
-homepage: https://github.com/RameshwarAmancha/flutter_audio_toolkit
-repository: https://github.com/RameshwarAmancha/flutter_audio_toolkit
-issue_tracker: https://github.com/RameshwarAmancha/flutter_audio_toolkit/issues
-documentation: https://github.com/RameshwarAmancha/flutter_audio_toolkit#readme
+description: "A plugin for audio conversion, trimming, and waveform extraction using native platform APIs. Supports MP3/WAV/OGG to AAC/M4A conversion, precise audio trimming, and waveform data extraction for visualization."
+version: 0.2.0
+homepage: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit
+repository: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit
+issue_tracker: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit/issues
+documentation: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit#readme
 publish_to: null
 
 topics:
@@ -50,6 +50,12 @@ flutter:
         pluginClass: FlutterAudioToolkitPlugin
       ios:
         pluginClass: FlutterAudioToolkitPlugin
+      macos:
+        pluginClass: FlutterAudioToolkitPlugin
+      linux:
+        pluginClass: FlutterAudioToolkitPlugin
+      windows:
+        pluginClass: FlutterAudioToolkitPluginCApi
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

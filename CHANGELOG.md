@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.2.0] - 2025-06-08
+
+### Added
+- **Multi-Platform Support**: Added support for macOS, Linux, and Windows platforms
+- **macOS Implementation**: Full native implementation using AVFoundation (same as iOS)
+- **Linux & Windows**: Basic plugin structure with platform-specific error handling
+- **Platform Documentation**: Updated README with comprehensive platform support matrix
+- **Desktop Compatibility**: Plugin now declares support for all desktop platforms
+
+### Enhanced
+- Updated platform support matrix in README
+- Added platform-specific implementation notes
+- Improved plugin architecture for cross-platform compatibility
+
+### Technical Details
+- macOS: Complete AVFoundation implementation for audio conversion, trimming, and waveform extraction
+- Linux: GTK-based plugin structure (requires FFmpeg/GStreamer for full functionality)
+- Windows: Win32 plugin structure (requires Media Foundation/FFmpeg for full functionality)
+
+### Notes
+- Desktop platforms (Linux, Windows) have basic plugin structure but require additional audio processing libraries
+- macOS has full feature parity with iOS using the same AVFoundation APIs
+
 ## [0.1.0] - 2025-06-07
 
 ### Added
