@@ -13,7 +13,6 @@ topics:
   - conversion
   - trim
   - visualization
-  - native
 
 environment:
   sdk: ^3.7.2
