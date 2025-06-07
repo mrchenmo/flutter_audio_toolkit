@@ -76,7 +76,7 @@
 To publish this package to pub.dev, run:
 
 ```bash
-cd "c:\Development\GitHub\AahanaProduction\perfect-waves"
+cd "c:\Development\GitHub\RameshawrAmancha\flutter_audio_toolkit"
 flutter pub publish
 ```
 
