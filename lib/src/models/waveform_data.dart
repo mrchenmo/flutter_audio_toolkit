@@ -73,14 +73,18 @@ class WaveformData {
 
   @override
   int get hashCode {
-    return amplitudes.hashCode ^ sampleRate.hashCode ^ durationMs.hashCode ^ channels.hashCode;
+    return amplitudes.hashCode ^
+        sampleRate.hashCode ^
+        durationMs.hashCode ^
+        channels.hashCode;
   }
 
   /// Helper method to compare lists
   bool _listEquals(List<double> a, List<double> b) {
     if (a.length != b.length) return false;
     for (int i = 0; i < a.length; i++) {
-      if ((a[i] - b[i]).abs() > 0.0001) return false; // Allow small floating point differences
+      if ((a[i] - b[i]).abs() > 0.0001)
+        return false; // Allow small floating point differences
     }
     return true;
   }

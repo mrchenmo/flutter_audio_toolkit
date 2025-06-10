@@ -182,8 +182,14 @@ class AudioMetadata {
       isrc: map['isrc'] as String?,
       barcode: map['barcode'] as String?,
       catalogNumber: map['catalogNumber'] as String?,
-      recordingDate: map['recordingDate'] != null ? DateTime.tryParse(map['recordingDate'] as String) : null,
-      releaseDate: map['releaseDate'] != null ? DateTime.tryParse(map['releaseDate'] as String) : null,
+      recordingDate:
+          map['recordingDate'] != null
+              ? DateTime.tryParse(map['recordingDate'] as String)
+              : null,
+      releaseDate:
+          map['releaseDate'] != null
+              ? DateTime.tryParse(map['releaseDate'] as String)
+              : null,
       coverArtData: map['coverArtData'] as String?,
       coverArtMimeType: map['coverArtMimeType'] as String?,
       customMetadata: map['customMetadata'] as Map<String, dynamic>?,
@@ -233,7 +239,8 @@ class AudioMetadata {
   }
 
   /// Gets the duration in seconds
-  double? get durationSeconds => durationMs != null ? durationMs! / 1000.0 : null;
+  double? get durationSeconds =>
+      durationMs != null ? durationMs! / 1000.0 : null;
 
   /// Gets the file size in a human-readable format
   String? get fileSizeFormatted {
@@ -242,7 +249,8 @@ class AudioMetadata {
     final bytes = fileSizeBytes!;
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -396,6 +404,15 @@ class AudioMetadata {
 
   @override
   int get hashCode {
-    return Object.hash(title, artist, album, durationMs, bitrate, sampleRate, channels, format);
+    return Object.hash(
+      title,
+      artist,
+      album,
+      durationMs,
+      bitrate,
+      sampleRate,
+      channels,
+      format,
+    );
   }
 }

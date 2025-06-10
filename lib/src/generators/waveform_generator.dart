@@ -40,13 +40,24 @@ class WaveformGenerator {
       final timeRatio = i / totalSamples;
       final t = timeRatio * durationMs / 1000.0; // Time in seconds
 
-      double amplitude = _generateAmplitudeForPattern(pattern, t, timeRatio, frequency, randomGen);
+      double amplitude = _generateAmplitudeForPattern(
+        pattern,
+        t,
+        timeRatio,
+        frequency,
+        randomGen,
+      );
 
       // Ensure amplitude is between 0.0 and 1.0
       amplitude = amplitude.clamp(0.0, 1.0);
       amplitudes.add(amplitude);
     }
-    return WaveformData(amplitudes: amplitudes, sampleRate: sampleRate, durationMs: durationMs, channels: channels);
+    return WaveformData(
+      amplitudes: amplitudes,
+      sampleRate: sampleRate,
+      durationMs: durationMs,
+      channels: channels,
+    );
   }
 
   /// Generates a styled waveform with a predefined color scheme
@@ -182,7 +193,8 @@ class WaveformGenerator {
   }) {
     // Use URL hash to make the fake waveform consistent for the same URL
     final urlHash = url.hashCode.abs();
-    final frequency = defaultFrequency + (urlHash % 200); // Vary frequency based on URL
+    final frequency =
+        defaultFrequency + (urlHash % 200); // Vary frequency based on URL
 
     // Create a seeded random generator for consistent results
     final seededRandom = Random(urlHash);
@@ -255,8 +267,14 @@ class WaveformGenerator {
   }
 
   /// Generates a smooth sine wave pattern with slight variations
-  static double _generateSinePattern(double t, double frequency, Random random) {
-    return 0.5 + 0.3 * sin(2 * pi * frequency * t / 1000) + 0.1 * sin(2 * pi * frequency * t / 300);
+  static double _generateSinePattern(
+    double t,
+    double frequency,
+    Random random,
+  ) {
+    return 0.5 +
+        0.3 * sin(2 * pi * frequency * t / 1000) +
+        0.1 * sin(2 * pi * frequency * t / 300);
   }
 
   /// Generates purely random amplitude values
@@ -265,7 +283,11 @@ class WaveformGenerator {
   }
 
   /// Generates music-like pattern with beats, crescendos, and variations
-  static double _generateMusicPattern(double t, double timeRatio, Random random) {
+  static double _generateMusicPattern(
+    double t,
+    double timeRatio,
+    Random random,
+  ) {
     // Music-like pattern with beats, crescendos, and variations
     final bassFreq = 60 + 40 * sin(2 * pi * t / 8); // 8-second bass cycle
     final midFreq = 200 + 100 * sin(2 * pi * t / 4); // 4-second mid cycle
@@ -282,7 +304,10 @@ class WaveformGenerator {
 
     // Add some dynamics
     if (timeRatio < 0.1 || timeRatio > 0.9) {
-      amplitude *= timeRatio < 0.1 ? timeRatio * 10 : (1 - timeRatio) * 10; // Fade in/out
+      amplitude *=
+          timeRatio < 0.1
+              ? timeRatio * 10
+              : (1 - timeRatio) * 10; // Fade in/out
     }
 
     // Add random variations to make different URLs produce different results
@@ -331,7 +356,11 @@ class WaveformGenerator {
   }
 
   /// Generates gradual fade in and out pattern
-  static double _generateFadePattern(double t, double timeRatio, double frequency) {
+  static double _generateFadePattern(
+    double t,
+    double timeRatio,
+    double frequency,
+  ) {
     final baseWave = 0.5 + 0.3 * sin(2 * pi * frequency * t / 100);
 
     if (timeRatio < 0.3) {
@@ -381,7 +410,12 @@ class WaveformGenerator {
   }
 
   /// Generates electronic/synthesized music pattern
-  static double _generateElectronicPattern(double t, double timeRatio, double frequency, Random random) {
+  static double _generateElectronicPattern(
+    double t,
+    double timeRatio,
+    double frequency,
+    Random random,
+  ) {
     // Electronic music with beats, drops, and synthesis
     final beatFreq = 4.0; // 4 beats per second (240 BPM)
     final beatCycle = (t * beatFreq) % 1;
@@ -407,7 +441,11 @@ class WaveformGenerator {
   }
 
   /// Generates classical music with orchestral dynamics
-  static double _generateClassicalPattern(double t, double timeRatio, Random random) {
+  static double _generateClassicalPattern(
+    double t,
+    double timeRatio,
+    Random random,
+  ) {
     // Classical music with orchestral sections and dynamics
     final stringSection = 0.3 * sin(2 * pi * 200 * t / 1000);
     final woodwindSection = 0.2 * sin(2 * pi * 400 * t / 1000 + pi / 4);
@@ -418,48 +456,71 @@ class WaveformGenerator {
     if (timeRatio < 0.2) {
       dynamicLevel = 0.3 + 0.4 * timeRatio / 0.2; // Gradual opening
     } else if (timeRatio > 0.6 && timeRatio < 0.8) {
-      dynamicLevel = 0.7 + 0.3 * sin(2 * pi * (timeRatio - 0.6) / 0.2); // Climax
+      dynamicLevel =
+          0.7 + 0.3 * sin(2 * pi * (timeRatio - 0.6) / 0.2); // Climax
     } else if (timeRatio > 0.9) {
       dynamicLevel = 0.7 * (1 - (timeRatio - 0.9) / 0.1); // Fade to end
     }
 
-    final amplitude = (stringSection.abs() + woodwindSection.abs() + brassSection.abs()) / 3;
+    final amplitude =
+        (stringSection.abs() + woodwindSection.abs() + brassSection.abs()) / 3;
     return amplitude * dynamicLevel + 0.1;
   }
 
   /// Generates rock music with heavy beats and sustained notes
-  static double _generateRockPattern(double t, double timeRatio, Random random) {
+  static double _generateRockPattern(
+    double t,
+    double timeRatio,
+    Random random,
+  ) {
     // Rock music with strong beats and guitar riffs
     final drumBeat = _generatePulsePattern(t * 1.5, random); // Faster drum beat
     final bassGuitar = 0.5 * sin(2 * pi * 80 * t / 1000);
-    final electricGuitar = 0.6 * sin(2 * pi * 300 * t / 1000 + random.nextDouble());
+    final electricGuitar =
+        0.6 * sin(2 * pi * 300 * t / 1000 + random.nextDouble());
 
     // Add power chord sections
     final powerChordCycle = (t * 0.25) % 1; // Every 4 seconds
     final powerChordAmp = powerChordCycle < 0.5 ? 0.8 : 0.4;
 
-    return ((drumBeat + bassGuitar.abs() + electricGuitar.abs()) / 3) * powerChordAmp + 0.2;
+    return ((drumBeat + bassGuitar.abs() + electricGuitar.abs()) / 3) *
+            powerChordAmp +
+        0.2;
   }
 
   /// Generates jazz pattern with improvisation and swing
-  static double _generateJazzPattern(double t, double timeRatio, Random random) {
+  static double _generateJazzPattern(
+    double t,
+    double timeRatio,
+    Random random,
+  ) {
     // Jazz with swing rhythm and improvisation
     final swingBeat = sin(2 * pi * 2.5 * t / 1000); // Swing tempo
-    final pianoComping = 0.3 * sin(2 * pi * 200 * t / 1000 + random.nextDouble());
+    final pianoComping =
+        0.3 * sin(2 * pi * 200 * t / 1000 + random.nextDouble());
     final bassWalk = 0.4 * sin(2 * pi * 60 * t / 1000);
 
     // Add improvisation sections with more variation
-    final improSection = random.nextDouble() < 0.3 ? 0.5 * random.nextDouble() : 0.0;
+    final improSection =
+        random.nextDouble() < 0.3 ? 0.5 * random.nextDouble() : 0.0;
 
-    final baseAmplitude = (swingBeat.abs() + pianoComping.abs() + bassWalk.abs()) / 3;
+    final baseAmplitude =
+        (swingBeat.abs() + pianoComping.abs() + bassWalk.abs()) / 3;
     return baseAmplitude + improSection + 0.15;
   }
 
   /// Generates ambient/drone pattern with sustained tones
-  static double _generateAmbientPattern(double t, double timeRatio, double frequency, Random random) {
+  static double _generateAmbientPattern(
+    double t,
+    double timeRatio,
+    double frequency,
+    Random random,
+  ) {
     // Ambient music with slow evolving textures
-    final drone1 = 0.3 * sin(2 * pi * frequency * t / 2000); // Very slow oscillation
-    final drone2 = 0.2 * sin(2 * pi * (frequency + 5) * t / 3000); // Slight detuning
+    final drone1 =
+        0.3 * sin(2 * pi * frequency * t / 2000); // Very slow oscillation
+    final drone2 =
+        0.2 * sin(2 * pi * (frequency + 5) * t / 3000); // Slight detuning
     final texture = 0.1 * sin(2 * pi * frequency * 2 * t / 5000);
 
     // Very slow evolution
@@ -479,7 +540,9 @@ class WaveformGenerator {
     } else if (speechCycle < 0.8) {
       // Clear, consistent speech
       final consonantVowelPattern = sin(2 * pi * speechCycle * 8);
-      return 0.4 + 0.2 * consonantVowelPattern.abs() + 0.1 * random.nextDouble();
+      return 0.4 +
+          0.2 * consonantVowelPattern.abs() +
+          0.1 * random.nextDouble();
     } else {
       // End of sentence/thought
       return 0.3 * (1 - (speechCycle - 0.8) / 0.2);
@@ -497,7 +560,8 @@ class WaveformGenerator {
     } else {
       // Consistent narration with slight variations
       final baseLevel = 0.5;
-      final emphasis = 0.1 * sin(2 * pi * speechCycle * 6); // Slight emphasis pattern
+      final emphasis =
+          0.1 * sin(2 * pi * speechCycle * 6); // Slight emphasis pattern
       final naturalVariation = 0.05 * (random.nextDouble() - 0.5);
 
       return baseLevel + emphasis + naturalVariation;
@@ -516,7 +580,8 @@ class WaveformGenerator {
     final midFreq = 0.2 * sin(2 * pi * 200 * t / 1000);
     final highFreq = 0.1 * sin(2 * pi * 800 * t / 1000);
 
-    return (lowFreq.abs() + midFreq.abs() + highFreq.abs()) + 0.2 * random.nextDouble();
+    return (lowFreq.abs() + midFreq.abs() + highFreq.abs()) +
+        0.2 * random.nextDouble();
   }
 
   /// Generates heartbeat pattern for relaxation
@@ -551,16 +616,20 @@ class WaveformGenerator {
     final smallWaves = 0.2 * sin(2 * pi * t / 1000); // 1-second waves
     final foam = 0.1 * random.nextDouble(); // Random foam/bubbles
 
-    final amplitude = (bigWaves.abs() + mediumWaves.abs() + smallWaves.abs()) / 3 + foam;
+    final amplitude =
+        (bigWaves.abs() + mediumWaves.abs() + smallWaves.abs()) / 3 + foam;
     return amplitude + 0.2; // Increased baseline for better audibility
   }
 
   /// Generates rain pattern for ambient sound
   static double _generateRainPattern(double t, Random random) {
     // Rain with varying intensity
-    final baseIntensity = 0.3 + 0.2 * sin(2 * pi * t / 10000); // 10-second intensity cycle
-    final raindrops = random.nextDouble() < 0.8 ? random.nextDouble() * 0.3 : 0.0;
-    final heavyDrops = random.nextDouble() < 0.1 ? random.nextDouble() * 0.4 : 0.0;
+    final baseIntensity =
+        0.3 + 0.2 * sin(2 * pi * t / 10000); // 10-second intensity cycle
+    final raindrops =
+        random.nextDouble() < 0.8 ? random.nextDouble() * 0.3 : 0.0;
+    final heavyDrops =
+        random.nextDouble() < 0.1 ? random.nextDouble() * 0.4 : 0.0;
 
     return baseIntensity + raindrops + heavyDrops;
   }

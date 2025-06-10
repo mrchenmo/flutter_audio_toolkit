@@ -18,8 +18,16 @@ void main() {
           samplesPerSecond: 50,
         );
 
-        expect(waveform.amplitudes.isNotEmpty, true, reason: 'Pattern $pattern should generate amplitudes');
-        expect(waveform.durationMs, 5000, reason: 'Pattern $pattern should have correct duration');
+        expect(
+          waveform.amplitudes.isNotEmpty,
+          true,
+          reason: 'Pattern $pattern should generate amplitudes',
+        );
+        expect(
+          waveform.durationMs,
+          5000,
+          reason: 'Pattern $pattern should have correct duration',
+        );
         expect(
           waveform.amplitudes.every((amp) => amp >= 0.0 && amp <= 1.0),
           true,
@@ -42,7 +50,10 @@ void main() {
     });
 
     test('generates themed waveforms with automatic styling', () {
-      final waveform = plugin.generateThemedWaveform(pattern: WaveformPattern.jazz, durationMs: 2000);
+      final waveform = plugin.generateThemedWaveform(
+        pattern: WaveformPattern.jazz,
+        durationMs: 2000,
+      );
 
       expect(waveform.style, isNotNull);
       expect(waveform.amplitudes.isNotEmpty, true);
@@ -100,11 +111,21 @@ void main() {
       );
 
       // Speech patterns should have some quiet periods (low amplitudes)
-      final lowAmplitudeCount = speechWave.amplitudes.where((amp) => amp < 0.1).length;
-      expect(lowAmplitudeCount, greaterThan(0), reason: 'Speech should have quiet periods');
+      final lowAmplitudeCount =
+          speechWave.amplitudes.where((amp) => amp < 0.1).length;
+      expect(
+        lowAmplitudeCount,
+        greaterThan(0),
+        reason: 'Speech should have quiet periods',
+      );
 
-      final podcastLowCount = podcastWave.amplitudes.where((amp) => amp < 0.1).length;
-      expect(podcastLowCount, greaterThan(0), reason: 'Podcast should have brief pauses');
+      final podcastLowCount =
+          podcastWave.amplitudes.where((amp) => amp < 0.1).length;
+      expect(
+        podcastLowCount,
+        greaterThan(0),
+        reason: 'Podcast should have brief pauses',
+      );
     });
 
     test('nature sounds have appropriate characteristics', () {
@@ -137,11 +158,21 @@ void main() {
       );
 
       // Should have clear peaks (heartbeats) and quiet periods
-      final highAmplitudeCount = heartbeatWave.amplitudes.where((amp) => amp > 0.5).length;
-      final lowAmplitudeCount = heartbeatWave.amplitudes.where((amp) => amp < 0.1).length;
+      final highAmplitudeCount =
+          heartbeatWave.amplitudes.where((amp) => amp > 0.5).length;
+      final lowAmplitudeCount =
+          heartbeatWave.amplitudes.where((amp) => amp < 0.1).length;
 
-      expect(highAmplitudeCount, greaterThan(0), reason: 'Should have heartbeat peaks');
-      expect(lowAmplitudeCount, greaterThan(0), reason: 'Should have quiet periods between beats');
+      expect(
+        highAmplitudeCount,
+        greaterThan(0),
+        reason: 'Should have heartbeat peaks',
+      );
+      expect(
+        lowAmplitudeCount,
+        greaterThan(0),
+        reason: 'Should have quiet periods between beats',
+      );
     });
 
     test('binaural beats pattern is stable', () {
@@ -158,7 +189,10 @@ void main() {
     });
 
     test('waveform style copying works correctly', () {
-      final originalWave = plugin.generateFakeWaveform(pattern: WaveformPattern.sine, durationMs: 1000);
+      final originalWave = plugin.generateFakeWaveform(
+        pattern: WaveformPattern.sine,
+        durationMs: 1000,
+      );
 
       const newStyle = WaveformColorSchemes.fire;
       final styledWave = originalWave.withStyle(newStyle);
@@ -170,7 +204,10 @@ void main() {
   });
   group('WaveformStyle Tests', () {
     test('predefined color schemes work correctly', () {
-      expect(WaveformColorSchemes.classic.primaryColor, const Color(0xFF2196F3));
+      expect(
+        WaveformColorSchemes.classic.primaryColor,
+        const Color(0xFF2196F3),
+      );
       expect(WaveformColorSchemes.fire.useGradient, true);
       expect(WaveformColorSchemes.professional.showGrid, true);
     });

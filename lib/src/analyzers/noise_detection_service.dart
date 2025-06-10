@@ -64,7 +64,10 @@ class NoiseDetectionService {
   /// [onProgress] - Optional callback for analysis progress
   ///
   /// Returns basic noise level and volume information
-  static Future<Map<String, dynamic>> quickNoiseCheck({required String inputPath, ProgressCallback? onProgress}) async {
+  static Future<Map<String, dynamic>> quickNoiseCheck({
+    required String inputPath,
+    ProgressCallback? onProgress,
+  }) async {
     // This would be a lighter-weight analysis
     final random = Random();
 
@@ -90,11 +93,14 @@ class NoiseDetectionService {
     int segmentDurationMs,
     ProgressCallback? onProgress,
   ) async {
-    final random = Random(inputPath.hashCode); // Consistent results for same file
+    final random = Random(
+      inputPath.hashCode,
+    ); // Consistent results for same file
     final analysisStart = DateTime.now();
 
     // Simulate analysis duration based on file complexity
-    final totalDuration = 30000 + random.nextInt(120000); // 30 seconds to 2.5 minutes
+    final totalDuration =
+        30000 + random.nextInt(120000); // 30 seconds to 2.5 minutes
     final segmentCount = (totalDuration / segmentDurationMs).ceil();
 
     // Generate segments with progress updates
@@ -120,7 +126,8 @@ class NoiseDetectionService {
     final frequencyAnalysis = _generateFakeFrequencyAnalysis(random);
     final overallNoiseLevel = _calculateOverallNoiseLevel(segments);
     final volumeLevel = _calculateVolumeLevel(qualityMetrics);
-    final confidenceScore = 0.7 + random.nextDouble() * 0.25; // 70-95% confidence
+    final confidenceScore =
+        0.7 + random.nextDouble() * 0.25; // 70-95% confidence
 
     return NoiseDetectionResult(
       overallNoiseLevel: overallNoiseLevel,
@@ -136,16 +143,25 @@ class NoiseDetectionService {
   }
 
   /// Generates a fake segment for testing
-  static NoiseSegment _generateFakeSegment(int startMs, int endMs, Random random) {
-    final noiseLevel = NoiseLevel.values[random.nextInt(NoiseLevel.values.length)];
-    final volumeLevel = VolumeLevel.values[random.nextInt(VolumeLevel.values.length)];
+  static NoiseSegment _generateFakeSegment(
+    int startMs,
+    int endMs,
+    Random random,
+  ) {
+    final noiseLevel =
+        NoiseLevel.values[random.nextInt(NoiseLevel.values.length)];
+    final volumeLevel =
+        VolumeLevel.values[random.nextInt(VolumeLevel.values.length)];
 
     // Generate some detected noises for this segment
     final segmentNoises = <DetectedNoise>[];
     if (random.nextDouble() < 0.3) {
       // 30% chance of noise in segment
-      final noiseType = NoiseType.values[random.nextInt(NoiseType.values.length)];
-      segmentNoises.add(_generateFakeDetectedNoise(startMs, endMs, noiseType, random));
+      final noiseType =
+          NoiseType.values[random.nextInt(NoiseType.values.length)];
+      segmentNoises.add(
+        _generateFakeDetectedNoise(startMs, endMs, noiseType, random),
+      );
     }
 
     final spectralData = SegmentSpectralData(
@@ -154,7 +170,10 @@ class NoiseDetectionService {
       spectralBandwidth: 300 + random.nextDouble() * 500,
       spectralRolloff: 2000 + random.nextDouble() * 4000,
       zeroCrossingRate: random.nextDouble() * 0.5,
-      mfcc: List.generate(13, (_) => random.nextDouble() * 2 - 1), // 13 MFCC coefficients
+      mfcc: List.generate(
+        13,
+        (_) => random.nextDouble() * 2 - 1,
+      ), // 13 MFCC coefficients
     );
 
     return NoiseSegment(
@@ -171,12 +190,16 @@ class NoiseDetectionService {
   }
 
   /// Generates fake detected noises for the entire audio
-  static List<DetectedNoise> _generateFakeDetectedNoises(int totalDuration, Random random) {
+  static List<DetectedNoise> _generateFakeDetectedNoises(
+    int totalDuration,
+    Random random,
+  ) {
     final noises = <DetectedNoise>[];
     final noiseCount = random.nextInt(5); // 0-4 detected noises
 
     for (int i = 0; i < noiseCount; i++) {
-      final noiseType = NoiseType.values[random.nextInt(NoiseType.values.length)];
+      final noiseType =
+          NoiseType.values[random.nextInt(NoiseType.values.length)];
       final startMs = random.nextInt(totalDuration - 5000);
       final endMs = startMs + 1000 + random.nextInt(4000);
 
@@ -187,7 +210,12 @@ class NoiseDetectionService {
   }
 
   /// Generates a single fake detected noise
-  static DetectedNoise _generateFakeDetectedNoise(int startMs, int endMs, NoiseType type, Random random) {
+  static DetectedNoise _generateFakeDetectedNoise(
+    int startMs,
+    int endMs,
+    NoiseType type,
+    Random random,
+  ) {
     final confidence = 0.5 + random.nextDouble() * 0.4; // 50-90% confidence
     final frequencyRange = type.typicalFrequencyRange;
 
@@ -218,7 +246,8 @@ class NoiseDetectionService {
   /// Generates fake audio quality metrics
   static AudioQualityMetrics _generateFakeQualityMetrics(Random random) {
     final peakDbFS = -20 + random.nextDouble() * 15; // -20 to -5 dBFS
-    final averageDbFS = peakDbFS - 10 - random.nextDouble() * 10; // 10-20 dB below peak
+    final averageDbFS =
+        peakDbFS - 10 - random.nextDouble() * 10; // 10-20 dB below peak
     final dynamicRange = peakDbFS - averageDbFS;
 
     return AudioQualityMetrics(
@@ -245,13 +274,20 @@ class NoiseDetectionService {
       final freq = (i * 22050 / 512); // Assuming 44.1kHz sample rate
       final magnitude = random.nextDouble();
       final phase = random.nextDouble() * 2 * pi;
-      return FrequencyBin(frequencyHz: freq, magnitude: magnitude, phase: phase);
+      return FrequencyBin(
+        frequencyHz: freq,
+        magnitude: magnitude,
+        phase: phase,
+      );
     });
 
     final problematicBands = <ProblematicFrequencyBand>[];
     if (random.nextBool()) {
       // Add a problematic band occasionally
-      final problemType = FrequencyProblemType.values[random.nextInt(FrequencyProblemType.values.length)];
+      final problemType =
+          FrequencyProblemType.values[random.nextInt(
+            FrequencyProblemType.values.length,
+          )];
       problematicBands.add(
         ProblematicFrequencyBand(
           range: const FrequencyRange(lowHz: 50, highHz: 120),
@@ -265,7 +301,8 @@ class NoiseDetectionService {
     return FrequencyAnalysis(
       spectrum: spectrum,
       dominantFrequency: 200 + random.nextDouble() * 2000,
-      fundamentalFrequency: random.nextBool() ? 100 + random.nextDouble() * 300 : null,
+      fundamentalFrequency:
+          random.nextBool() ? 100 + random.nextDouble() * 300 : null,
       lowFrequencyEnergy: random.nextDouble() * 40, // 0-40%
       midFrequencyEnergy: 40 + random.nextDouble() * 40, // 40-80%
       highFrequencyEnergy: random.nextDouble() * 30, // 0-30%
@@ -300,9 +337,13 @@ class NoiseDetectionService {
     if (segments.isEmpty) return NoiseLevel.low;
 
     final noiseLevels = segments.map((s) => s.noiseLevel.index).toList();
-    final averageLevel = noiseLevels.reduce((a, b) => a + b) / noiseLevels.length;
+    final averageLevel =
+        noiseLevels.reduce((a, b) => a + b) / noiseLevels.length;
 
-    return NoiseLevel.values[averageLevel.round().clamp(0, NoiseLevel.values.length - 1)];
+    return NoiseLevel.values[averageLevel.round().clamp(
+      0,
+      NoiseLevel.values.length - 1,
+    )];
   }
 
   /// Calculates volume level from quality metrics

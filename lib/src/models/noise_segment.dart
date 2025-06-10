@@ -50,11 +50,15 @@ class NoiseSegment {
       noiseLevel: NoiseLevel.values[map['noiseLevel'] as int],
       volumeLevel: VolumeLevel.values[map['volumeLevel'] as int],
       detectedNoises:
-          (map['detectedNoises'] as List).map((e) => DetectedNoise.fromMap(e as Map<String, dynamic>)).toList(),
+          (map['detectedNoises'] as List)
+              .map((e) => DetectedNoise.fromMap(e as Map<String, dynamic>))
+              .toList(),
       peakAmplitude: (map['peakAmplitude'] as num).toDouble(),
       averageAmplitude: (map['averageAmplitude'] as num).toDouble(),
       snrDb: (map['snrDb'] as num).toDouble(),
-      spectralData: SegmentSpectralData.fromMap(map['spectralData'] as Map<String, dynamic>),
+      spectralData: SegmentSpectralData.fromMap(
+        map['spectralData'] as Map<String, dynamic>,
+      ),
     );
   }
 
@@ -169,7 +173,9 @@ class NoiseSegment {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is NoiseSegment && other.startTimeMs == startTimeMs && other.endTimeMs == endTimeMs;
+    return other is NoiseSegment &&
+        other.startTimeMs == startTimeMs &&
+        other.endTimeMs == endTimeMs;
   }
 
   @override

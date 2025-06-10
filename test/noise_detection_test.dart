@@ -12,7 +12,10 @@ void main() {
     test('analyzes audio for noise detection', () async {
       const inputPath = '/path/to/test/audio.mp3';
 
-      final result = await plugin.analyzeNoise(inputPath: inputPath, segmentDurationMs: 3000);
+      final result = await plugin.analyzeNoise(
+        inputPath: inputPath,
+        segmentDurationMs: 3000,
+      );
 
       expect(result, isA<NoiseDetectionResult>());
       expect(result.overallNoiseLevel, isA<NoiseLevel>());
@@ -29,7 +32,11 @@ void main() {
       const url = 'https://example.com/audio.mp3';
       const localPath = '/tmp/downloaded_audio.mp3';
 
-      final result = await plugin.analyzeNoiseFromUrl(url: url, localPath: localPath, segmentDurationMs: 2000);
+      final result = await plugin.analyzeNoiseFromUrl(
+        url: url,
+        localPath: localPath,
+        segmentDurationMs: 2000,
+      );
 
       expect(result, isA<NoiseDetectionResult>());
       expect(result.segments.isNotEmpty, true);
@@ -48,21 +55,24 @@ void main() {
       expect(result.containsKey('snrDb'), true);
     });
 
-    test('noise detection result provides summary and recommendations', () async {
-      const inputPath = '/path/to/test/audio.mp3';
+    test(
+      'noise detection result provides summary and recommendations',
+      () async {
+        const inputPath = '/path/to/test/audio.mp3';
 
-      final result = await plugin.analyzeNoise(inputPath: inputPath);
+        final result = await plugin.analyzeNoise(inputPath: inputPath);
 
-      // Test summary generation
-      expect(result.summary, isA<String>());
-      expect(result.summary.contains('Audio Analysis Summary'), true);
+        // Test summary generation
+        expect(result.summary, isA<String>());
+        expect(result.summary.contains('Audio Analysis Summary'), true);
 
-      // Test issues detection
-      expect(result.issues, isA<List<String>>());
+        // Test issues detection
+        expect(result.issues, isA<List<String>>());
 
-      // Test recommendations
-      expect(result.recommendations, isA<List<String>>());
-    });
+        // Test recommendations
+        expect(result.recommendations, isA<List<String>>());
+      },
+    );
   });
 
   group('Detected Noise Tests', () {
@@ -173,7 +183,10 @@ void main() {
       expect(analysis.spectrum.length, 3);
       expect(analysis.dominantFrequency, 1000);
       expect(analysis.frequencyDistribution, 'Mid-Range Heavy');
-      expect(analysis.tonalCharacteristics.contains('High-frequency hiss'), true);
+      expect(
+        analysis.tonalCharacteristics.contains('High-frequency hiss'),
+        true,
+      );
     });
 
     test('problematic frequency bands work correctly', () {
@@ -215,7 +228,10 @@ void main() {
 
       expect(segment.durationMs, 5000);
       expect(segment.durationSeconds, 5.0);
-      expect(segment.hasIssues, false); // Medium noise level isn't considered an issue
+      expect(
+        segment.hasIssues,
+        false,
+      ); // Medium noise level isn't considered an issue
       expect(segment.qualityScore, greaterThan(0.5));
       expect(segment.timeRange, isA<String>());
     });
@@ -281,15 +297,23 @@ void main() {
   group('Serialization Tests', () {
     test('noise detection result serializes correctly', () async {
       const inputPath = '/path/to/test/audio.mp3';
-      final originalResult = await FlutterAudioToolkit().analyzeNoise(inputPath: inputPath);
+      final originalResult = await FlutterAudioToolkit().analyzeNoise(
+        inputPath: inputPath,
+      );
 
       final map = originalResult.toMap();
       final restoredResult = NoiseDetectionResult.fromMap(map);
 
-      expect(restoredResult.overallNoiseLevel, originalResult.overallNoiseLevel);
+      expect(
+        restoredResult.overallNoiseLevel,
+        originalResult.overallNoiseLevel,
+      );
       expect(restoredResult.volumeLevel, originalResult.volumeLevel);
       expect(restoredResult.confidenceScore, originalResult.confidenceScore);
-      expect(restoredResult.analyzedDurationMs, originalResult.analyzedDurationMs);
+      expect(
+        restoredResult.analyzedDurationMs,
+        originalResult.analyzedDurationMs,
+      );
     });
 
     test('detected noise serializes correctly', () {

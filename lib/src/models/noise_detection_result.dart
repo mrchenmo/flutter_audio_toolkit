@@ -48,10 +48,19 @@ class NoiseDetectionResult {
       overallNoiseLevel: NoiseLevel.values[map['overallNoiseLevel'] as int],
       volumeLevel: VolumeLevel.values[map['volumeLevel'] as int],
       detectedNoises:
-          (map['detectedNoises'] as List).map((e) => DetectedNoise.fromMap(e as Map<String, dynamic>)).toList(),
-      qualityMetrics: AudioQualityMetrics.fromMap(map['qualityMetrics'] as Map<String, dynamic>),
-      frequencyAnalysis: FrequencyAnalysis.fromMap(map['frequencyAnalysis'] as Map<String, dynamic>),
-      segments: (map['segments'] as List).map((e) => NoiseSegment.fromMap(e as Map<String, dynamic>)).toList(),
+          (map['detectedNoises'] as List)
+              .map((e) => DetectedNoise.fromMap(e as Map<String, dynamic>))
+              .toList(),
+      qualityMetrics: AudioQualityMetrics.fromMap(
+        map['qualityMetrics'] as Map<String, dynamic>,
+      ),
+      frequencyAnalysis: FrequencyAnalysis.fromMap(
+        map['frequencyAnalysis'] as Map<String, dynamic>,
+      ),
+      segments:
+          (map['segments'] as List)
+              .map((e) => NoiseSegment.fromMap(e as Map<String, dynamic>))
+              .toList(),
       confidenceScore: (map['confidenceScore'] as num).toDouble(),
       analysisTimestamp: DateTime.parse(map['analysisTimestamp'] as String),
       analyzedDurationMs: map['analyzedDurationMs'] as int,
@@ -79,12 +88,16 @@ class NoiseDetectionResult {
     buffer.writeln('Audio Analysis Summary:');
     buffer.writeln('- Overall Noise: ${overallNoiseLevel.description}');
     buffer.writeln('- Volume Level: ${volumeLevel.description}');
-    buffer.writeln('- Quality Score: ${(qualityMetrics.overallScore * 100).toStringAsFixed(1)}%');
+    buffer.writeln(
+      '- Quality Score: ${(qualityMetrics.overallScore * 100).toStringAsFixed(1)}%',
+    );
 
     if (detectedNoises.isNotEmpty) {
       buffer.writeln('- Detected Noises:');
       for (final noise in detectedNoises) {
-        buffer.writeln('  * ${noise.type.description} (${(noise.confidence * 100).toStringAsFixed(1)}% confidence)');
+        buffer.writeln(
+          '  * ${noise.type.description} (${(noise.confidence * 100).toStringAsFixed(1)}% confidence)',
+        );
       }
     }
 
@@ -96,9 +109,13 @@ class NoiseDetectionResult {
     final issues = <String>[];
 
     if (volumeLevel == VolumeLevel.tooLoud) {
-      issues.add('Audio is too loud (${qualityMetrics.peakDbFS.toStringAsFixed(1)} dBFS)');
+      issues.add(
+        'Audio is too loud (${qualityMetrics.peakDbFS.toStringAsFixed(1)} dBFS)',
+      );
     } else if (volumeLevel == VolumeLevel.tooQuiet) {
-      issues.add('Audio is too quiet (${qualityMetrics.averageDbFS.toStringAsFixed(1)} dBFS)');
+      issues.add(
+        'Audio is too quiet (${qualityMetrics.averageDbFS.toStringAsFixed(1)} dBFS)',
+      );
     }
 
     if (overallNoiseLevel == NoiseLevel.high) {
@@ -106,11 +123,15 @@ class NoiseDetectionResult {
     }
 
     if (qualityMetrics.dynamicRange < 10) {
-      issues.add('Poor dynamic range (${qualityMetrics.dynamicRange.toStringAsFixed(1)} dB)');
+      issues.add(
+        'Poor dynamic range (${qualityMetrics.dynamicRange.toStringAsFixed(1)} dB)',
+      );
     }
 
     if (qualityMetrics.clippingPercentage > 1.0) {
-      issues.add('Audio clipping detected (${qualityMetrics.clippingPercentage.toStringAsFixed(1)}% of samples)');
+      issues.add(
+        'Audio clipping detected (${qualityMetrics.clippingPercentage.toStringAsFixed(1)}% of samples)',
+      );
     }
 
     for (final noise in detectedNoises.where((n) => n.confidence > 0.7)) {
@@ -131,7 +152,9 @@ class NoiseDetectionResult {
     }
 
     if (overallNoiseLevel == NoiseLevel.high) {
-      recommendations.add('Use noise reduction or record in quieter environment');
+      recommendations.add(
+        'Use noise reduction or record in quieter environment',
+      );
     }
 
     if (qualityMetrics.clippingPercentage > 0) {
@@ -147,11 +170,15 @@ class NoiseDetectionResult {
     );
 
     if (outdoorNoises.isNotEmpty) {
-      recommendations.add('Consider recording indoors or using directional microphone');
+      recommendations.add(
+        'Consider recording indoors or using directional microphone',
+      );
     }
 
     if (frequencyAnalysis.hasLowFrequencyRumble) {
-      recommendations.add('Apply high-pass filter to remove low-frequency rumble');
+      recommendations.add(
+        'Apply high-pass filter to remove low-frequency rumble',
+      );
     }
 
     return recommendations;
@@ -175,7 +202,12 @@ class NoiseDetectionResult {
 
   @override
   int get hashCode {
-    return Object.hash(overallNoiseLevel, volumeLevel, confidenceScore, analyzedDurationMs);
+    return Object.hash(
+      overallNoiseLevel,
+      volumeLevel,
+      confidenceScore,
+      analyzedDurationMs,
+    );
   }
 }
 

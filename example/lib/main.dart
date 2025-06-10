@@ -27,7 +27,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Audio Toolkit Demo',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: ChangeNotifierProvider(create: (context) => AppState(), child: const AudioToolkitHome()),
+      home: ChangeNotifierProvider(
+        create: (context) => AppState(),
+        child: const AudioToolkitHome(),
+      ),
     );
   }
 }
@@ -56,7 +59,12 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
 
   Future<void> _requestPermissions() async {
     if (Platform.isAndroid) {
-      await [Permission.storage, Permission.manageExternalStorage, Permission.audio, Permission.microphone].request();
+      await [
+        Permission.storage,
+        Permission.manageExternalStorage,
+        Permission.audio,
+        Permission.microphone,
+      ].request();
     }
   }
 
@@ -72,9 +80,13 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
   void _showError(String message) {
     if (!mounted) return;
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red, duration: const Duration(seconds: 3)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   void _onStateChanged() {
@@ -88,14 +100,20 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
     return Consumer<AppState>(
       builder: (context, appState, child) {
         return Scaffold(
-          appBar: AppBar(title: const Text('Audio Converter & Waveform'), backgroundColor: Colors.blue),
+          appBar: AppBar(
+            title: const Text('Audio Converter & Waveform'),
+            backgroundColor: Colors.blue,
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // File Picker and URL Input Section
-                FilePickerWidget(appState: appState, onError: () => _showError('Failed to select or process file')),
+                FilePickerWidget(
+                  appState: appState,
+                  onError: () => _showError('Failed to select or process file'),
+                ),
 
                 // Audio Information Section
                 AudioInfoWidget(appState: appState),
@@ -103,7 +121,10 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
                 // Audio Conversion Section
                 if (appState.selectedFilePath != null) ...[
                   const SizedBox(height: 16),
-                  ConversionWidget(appState: appState, onStateChanged: _onStateChanged),
+                  ConversionWidget(
+                    appState: appState,
+                    onStateChanged: _onStateChanged,
+                  ),
 
                   // Waveform Extraction Section
                   const SizedBox(height: 16),
@@ -116,7 +137,10 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
                     onStateChanged: _onStateChanged,
                   ), // Noise Detection & Analysis Section
                   const SizedBox(height: 16),
-                  NoiseDetectionWidget(appState: appState, onStateChanged: _onStateChanged),
+                  NoiseDetectionWidget(
+                    appState: appState,
+                    onStateChanged: _onStateChanged,
+                  ),
                 ],
               ],
             ),

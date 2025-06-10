@@ -11,7 +11,11 @@ class NetworkService {
   /// [onProgress] - Optional callback for download progress (0.0 to 1.0)
   ///
   /// Throws [Exception] if download fails
-  static Future<void> downloadFile(String url, String outputPath, {ProgressCallback? onProgress}) async {
+  static Future<void> downloadFile(
+    String url,
+    String outputPath, {
+    ProgressCallback? onProgress,
+  }) async {
     final uri = Uri.parse(url);
     final request = http.Request('GET', uri);
     final response = await request.send();

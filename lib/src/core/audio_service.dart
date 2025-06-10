@@ -95,7 +95,9 @@ class AudioService {
   ///
   /// Returns an [AudioMetadata] object containing all available metadata
   static Future<AudioMetadata> extractMetadata(String inputPath) async {
-    final metadataMap = await FlutterAudioToolkitPlatform.instance.getAudioInfo(inputPath);
+    final metadataMap = await FlutterAudioToolkitPlatform.instance.getAudioInfo(
+      inputPath,
+    );
     return AudioMetadata.fromMap(metadataMap);
   }
 
@@ -158,7 +160,9 @@ class AudioService {
         url,
         localPath,
         onProgress: (progress) {
-          onDownloadProgress?.call(progress * 0.5); // Download takes 50% of total progress
+          onDownloadProgress?.call(
+            progress * 0.5,
+          ); // Download takes 50% of total progress
         },
       );
 
@@ -167,7 +171,9 @@ class AudioService {
         inputPath: localPath,
         samplesPerSecond: samplesPerSecond,
         onProgress: (progress) {
-          onExtractionProgress?.call(0.5 + progress * 0.5); // Extraction takes remaining 50%
+          onExtractionProgress?.call(
+            0.5 + progress * 0.5,
+          ); // Extraction takes remaining 50%
         },
       );
 
@@ -187,7 +193,11 @@ class AudioService {
   /// [url] - URL of the audio file to download
   /// [outputPath] - Local path where the downloaded file will be saved
   /// [onProgress] - Optional callback for download progress
-  static Future<String> downloadFile(String url, String outputPath, {ProgressCallback? onProgress}) async {
+  static Future<String> downloadFile(
+    String url,
+    String outputPath, {
+    ProgressCallback? onProgress,
+  }) async {
     await NetworkService.downloadFile(url, outputPath, onProgress: onProgress);
     return outputPath;
   }

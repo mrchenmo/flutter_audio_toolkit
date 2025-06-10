@@ -66,7 +66,8 @@ class AudioQualityMetrics {
       dynamicRange: (map['dynamicRange'] as num).toDouble(),
       signalToNoiseRatio: (map['signalToNoiseRatio'] as num).toDouble(),
       clippingPercentage: (map['clippingPercentage'] as num).toDouble(),
-      totalHarmonicDistortion: (map['totalHarmonicDistortion'] as num).toDouble(),
+      totalHarmonicDistortion:
+          (map['totalHarmonicDistortion'] as num).toDouble(),
       stereoBalance: (map['stereoBalance'] as num).toDouble(),
       overallScore: (map['overallScore'] as num).toDouble(),
       lufs: (map['lufs'] as num).toDouble(),
@@ -276,10 +277,15 @@ class FrequencyAnalysis {
   /// Creates from map data
   factory FrequencyAnalysis.fromMap(Map<String, dynamic> map) {
     return FrequencyAnalysis(
-      spectrum: (map['spectrum'] as List).map((e) => FrequencyBin.fromMap(e as Map<String, dynamic>)).toList(),
+      spectrum:
+          (map['spectrum'] as List)
+              .map((e) => FrequencyBin.fromMap(e as Map<String, dynamic>))
+              .toList(),
       dominantFrequency: (map['dominantFrequency'] as num).toDouble(),
       fundamentalFrequency:
-          map['fundamentalFrequency'] != null ? (map['fundamentalFrequency'] as num).toDouble() : null,
+          map['fundamentalFrequency'] != null
+              ? (map['fundamentalFrequency'] as num).toDouble()
+              : null,
       lowFrequencyEnergy: (map['lowFrequencyEnergy'] as num).toDouble(),
       midFrequencyEnergy: (map['midFrequencyEnergy'] as num).toDouble(),
       highFrequencyEnergy: (map['highFrequencyEnergy'] as num).toDouble(),
@@ -289,7 +295,10 @@ class FrequencyAnalysis {
       hasHighFrequencyHiss: map['hasHighFrequencyHiss'] as bool,
       problematicBands:
           (map['problematicBands'] as List)
-              .map((e) => ProblematicFrequencyBand.fromMap(e as Map<String, dynamic>))
+              .map(
+                (e) =>
+                    ProblematicFrequencyBand.fromMap(e as Map<String, dynamic>),
+              )
               .toList(),
     );
   }
@@ -365,7 +374,11 @@ class FrequencyBin {
   final double phase;
 
   /// Creates a frequency bin
-  const FrequencyBin({required this.frequencyHz, required this.magnitude, required this.phase});
+  const FrequencyBin({
+    required this.frequencyHz,
+    required this.magnitude,
+    required this.phase,
+  });
 
   /// Creates from map data
   factory FrequencyBin.fromMap(Map<String, dynamic> map) {

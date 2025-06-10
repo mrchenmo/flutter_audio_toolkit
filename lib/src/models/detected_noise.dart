@@ -45,7 +45,9 @@ class DetectedNoise {
       endTimeMs: map['endTimeMs'] as int,
       peakAmplitude: (map['peakAmplitude'] as num).toDouble(),
       averageAmplitude: (map['averageAmplitude'] as num).toDouble(),
-      frequencyRange: FrequencyRange.fromMap(map['frequencyRange'] as Map<String, dynamic>),
+      frequencyRange: FrequencyRange.fromMap(
+        map['frequencyRange'] as Map<String, dynamic>,
+      ),
       metadata: map['metadata'] as Map<String, dynamic>?,
     );
   }
@@ -282,7 +284,10 @@ enum NoiseType {
   FrequencyRange get typicalFrequencyRange {
     switch (this) {
       case NoiseType.electricalHum:
-        return const FrequencyRange(lowHz: 50, highHz: 180); // 50/60Hz and harmonics
+        return const FrequencyRange(
+          lowHz: 50,
+          highHz: 180,
+        ); // 50/60Hz and harmonics
       case NoiseType.traffic:
         return const FrequencyRange(lowHz: 80, highHz: 800);
       case NoiseType.carHorn:
@@ -351,7 +356,10 @@ class FrequencyRange {
 
   /// Creates from map data
   factory FrequencyRange.fromMap(Map<String, dynamic> map) {
-    return FrequencyRange(lowHz: (map['lowHz'] as num).toDouble(), highHz: (map['highHz'] as num).toDouble());
+    return FrequencyRange(
+      lowHz: (map['lowHz'] as num).toDouble(),
+      highHz: (map['highHz'] as num).toDouble(),
+    );
   }
 
   /// Converts to map
@@ -382,7 +390,9 @@ class FrequencyRange {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is FrequencyRange && other.lowHz == lowHz && other.highHz == highHz;
+    return other is FrequencyRange &&
+        other.lowHz == lowHz &&
+        other.highHz == highHz;
   }
 
   @override

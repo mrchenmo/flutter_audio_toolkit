@@ -38,6 +38,9 @@ class ConversionResult {
 
   @override
   int get hashCode {
-    return outputPath.hashCode ^ durationMs.hashCode ^ bitRate.hashCode ^ sampleRate.hashCode;
+    return outputPath.hashCode ^
+        durationMs.hashCode ^
+        bitRate.hashCode ^
+        sampleRate.hashCode;
   }
 }

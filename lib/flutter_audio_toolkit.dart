@@ -232,7 +232,11 @@ class FlutterAudioToolkit {
   /// [url] - URL of the audio file to download
   /// [outputPath] - Local path where the downloaded file will be saved
   /// [onProgress] - Optional callback for download progress
-  Future<String> downloadFile(String url, String outputPath, {ProgressCallback? onProgress}) {
+  Future<String> downloadFile(
+    String url,
+    String outputPath, {
+    ProgressCallback? onProgress,
+  }) {
     return AudioService.downloadFile(url, outputPath, onProgress: onProgress);
   }
 
@@ -258,7 +262,11 @@ class FlutterAudioToolkit {
     required String localPath,
     ProgressCallback? onProgress,
   }) {
-    return AudioService.extractMetadataFromUrl(url: url, localPath: localPath, onProgress: onProgress);
+    return AudioService.extractMetadataFromUrl(
+      url: url,
+      localPath: localPath,
+      onProgress: onProgress,
+    );
   }
 
   /// Analyzes an audio file for noise detection and quality assessment
@@ -318,7 +326,13 @@ class FlutterAudioToolkit {
   /// [onProgress] - Optional callback for analysis progress
   ///
   /// Returns basic noise and volume information for quick assessment
-  Future<Map<String, dynamic>> quickNoiseCheck({required String inputPath, ProgressCallback? onProgress}) {
-    return NoiseDetectionService.quickNoiseCheck(inputPath: inputPath, onProgress: onProgress);
+  Future<Map<String, dynamic>> quickNoiseCheck({
+    required String inputPath,
+    ProgressCallback? onProgress,
+  }) {
+    return NoiseDetectionService.quickNoiseCheck(
+      inputPath: inputPath,
+      onProgress: onProgress,
+    );
   }
 }
