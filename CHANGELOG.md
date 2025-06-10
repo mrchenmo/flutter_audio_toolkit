@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.3.1] - 2025-06-10
+- Fixed Dart Format Issues
+
 ## [0.3.0] - 2025-06-10
 
 ### 🆕 Major New Features
