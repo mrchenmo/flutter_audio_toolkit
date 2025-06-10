@@ -23,11 +23,15 @@ class AppState extends ChangeNotifier {
   // Fake waveform generation state
   WaveformPattern _selectedWaveformPattern = WaveformPattern.music;
   bool _isFakeWaveformMode = false;
-
   // Network file processing state
   final TextEditingController _urlController = TextEditingController();
   bool _isDownloading = false;
   double _downloadProgress = 0.0;
+
+  // Noise detection state
+  NoiseDetectionResult? _noiseAnalysisResult;
+  bool _isAnalyzingNoise = false;
+  double _noiseAnalysisProgress = 0.0;
 
   // Getters
   String get platformVersion => _platformVersion;
@@ -51,6 +55,9 @@ class AppState extends ChangeNotifier {
   TextEditingController get urlController => _urlController;
   bool get isDownloading => _isDownloading;
   double get downloadProgress => _downloadProgress;
+  NoiseDetectionResult? get noiseAnalysisResult => _noiseAnalysisResult;
+  bool get isAnalyzingNoise => _isAnalyzingNoise;
+  double get noiseAnalysisProgress => _noiseAnalysisProgress;
 
   // Setters with notification
   set platformVersion(String value) {
@@ -148,6 +155,21 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  set noiseAnalysisResult(NoiseDetectionResult? value) {
+    _noiseAnalysisResult = value;
+    notifyListeners();
+  }
+
+  set isAnalyzingNoise(bool value) {
+    _isAnalyzingNoise = value;
+    notifyListeners();
+  }
+
+  set noiseAnalysisProgress(double value) {
+    _noiseAnalysisProgress = value;
+    notifyListeners();
+  }
+
   /// Reset all state when selecting a new file
   void resetForNewFile() {
     _convertedFilePath = null;
@@ -157,6 +179,7 @@ class AppState extends ChangeNotifier {
     _trimStartMs = 0;
     _trimEndMs = 0;
     _isFakeWaveformMode = false;
+    _noiseAnalysisResult = null;
     notifyListeners();
   }
 

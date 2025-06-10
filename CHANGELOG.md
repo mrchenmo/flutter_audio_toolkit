@@ -1,5 +1,72 @@
 # Changelog
 
+## [0.3.0] - 2025-06-10
+
+### 🆕 Major New Features
+
+#### 🔊 Noise Detection & Audio Quality Analysis
+- **Comprehensive Audio Analysis**: Deep analysis of audio quality with detailed metrics
+- **15+ Noise Type Detection**: Identify background noises like car horns, dog barking, construction, etc.
+- **Audio Quality Metrics**: Peak levels, SNR, dynamic range, LUFS loudness measurement
+- **Frequency Analysis**: Spectral analysis with problematic frequency band detection
+- **Quality Grading**: Automatic quality scoring (Excellent, Good, Fair, Poor, Very Poor)
+- **Issue Detection**: Automatic detection of clipping, distortion, and balance problems
+- **Network Analysis**: Analyze audio quality directly from URLs
+
+#### 🎨 Enhanced Waveform Generation
+- **25+ Waveform Patterns**: Expanded from 7 to 25+ realistic patterns
+- **New Pattern Categories**:
+  - **Basic Waveforms**: `square`, `sawtooth`, `triangle` (added to existing sine, random, etc.)
+  - **Musical Patterns**: `electronic`, `classical`, `rock`, `jazz`, `ambient`
+  - **Voice & Speech**: `podcast`, `audiobook` (improved speech patterns)
+  - **Nature & Relaxation**: `whiteNoise`, `pinkNoise`, `heartbeat`, `ocean`, `rain`, `binauralBeats`
+- **Visual Styling System**: 9 predefined color schemes with customizable visual properties
+- **Themed Generation**: Automatic pattern-to-style matching for optimal visual presentation
+- **Style Application**: Apply visual styles to existing waveform data
+
+#### 📊 Advanced Metadata Extraction
+- **Comprehensive Metadata**: Extract 35+ metadata fields from audio files
+- **Cover Art Support**: Extract and handle embedded album artwork
+- **Technical Details**: Detailed codec, bitrate, and encoding information
+- **Date/Time Fields**: Recording dates, release dates with proper DateTime handling
+- **Custom Fields**: Support for additional metadata through extensible system
+
+### 🔧 Enhanced Features
+- **Improved Algorithm Accuracy**: Better pattern generation algorithms for all waveform types
+- **Memory Optimization**: More efficient audio processing and analysis
+- **Progress Tracking**: Enhanced progress callbacks for all new operations
+- **Error Handling**: Robust error handling for network operations and file processing
+
+### 🎛️ New API Methods
+```dart
+// Noise Detection & Analysis
+final analysisResult = await toolkit.analyzeAudioNoise(inputPath);
+final networkAnalysis = await toolkit.analyzeAudioNoiseFromUrl(url, localPath);
+
+// Enhanced Waveform Generation
+final themedWaveform = toolkit.generateThemedWaveform(pattern: WaveformPattern.jazz);
+final styledWaveform = toolkit.generateStyledWaveform(pattern: WaveformPattern.electronic, style: WaveformColorSchemes.neon);
+final waveformWithStyle = existingWaveform.withStyle(WaveformColorSchemes.fire);
+
+// Advanced Metadata
+final metadata = await toolkit.extractMetadata(inputPath);
+final networkMetadata = await toolkit.extractMetadataFromUrl(url, localPath);
+```
+
+### 🏗️ Architecture Improvements
+- **Modular Design**: Separated concerns into specialized analyzer and generator modules
+- **Type Safety**: Enhanced type definitions for all new models
+- **Documentation**: Comprehensive dartdoc documentation for all new APIs
+- **Testing**: 100+ new test cases covering all noise detection and enhanced waveform features
+
+### 📋 New Data Models
+- `NoiseDetectionResult` - Complete analysis results
+- `AudioQualityMetrics` - Detailed quality measurements
+- `FrequencyAnalysis` - Spectral analysis data
+- `DetectedNoise` - Individual noise detection results
+- `WaveformStyle` - Visual styling configuration
+- `AudioMetadata` - Comprehensive metadata container
+
 ## [0.2.0] - 2025-06-08
 
 ### Added

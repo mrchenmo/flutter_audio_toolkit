@@ -9,8 +9,7 @@ class AudioService {
   /// Gets platform version
   static Future<String> getPlatformVersion(AppState appState) async {
     try {
-      return await appState.audioToolkit.getPlatformVersion() ??
-          'Unknown platform version';
+      return await appState.audioToolkit.getPlatformVersion() ?? 'Unknown platform version';
     } catch (e) {
       return 'Failed to get platform version.';
     }
@@ -21,9 +20,7 @@ class AudioService {
     if (appState.selectedFilePath == null) return;
 
     try {
-      final info = await appState.audioToolkit.getAudioInfo(
-        appState.selectedFilePath!,
-      );
+      final info = await appState.audioToolkit.getAudioInfo(appState.selectedFilePath!);
       appState.audioInfo = info;
     } catch (e) {
       if (kDebugMode) {
@@ -33,10 +30,7 @@ class AudioService {
   }
 
   /// Converts audio to specified format
-  static Future<void> convertAudio(
-    AppState appState,
-    AudioFormat format,
-  ) async {
+  static Future<void> convertAudio(AppState appState, AudioFormat format) async {
     // Perform comprehensive validations
     if (!await ValidationService.validateSelectedFile(appState)) return;
     if (!await ValidationService.validateFormatSupport(appState)) return;
@@ -51,8 +45,7 @@ class AudioService {
       if (!await directory.exists()) {
         await directory.create(recursive: true);
       }
-      final fileName =
-          'converted_audio_${DateTime.now().millisecondsSinceEpoch}.${format.name}';
+      final fileName = 'converted_audio_${DateTime.now().millisecondsSinceEpoch}.${format.name}';
       final outputPath = '${directory.path}/$fileName';
 
       if (kDebugMode) {
@@ -72,9 +65,7 @@ class AudioService {
       appState.isConverting = false;
 
       if (kDebugMode) {
-        print(
-          'Audio converted successfully! File saved to: ${result.outputPath}',
-        );
+        print('Audio converted successfully! File saved to: ${result.outputPath}');
       }
     } catch (e) {
       appState.isConverting = false;
@@ -138,8 +129,7 @@ class AudioService {
 
       // Use audio info duration if available, otherwise estimate
       int estimatedDurationMs = 180000; // 3 minutes default
-      if (appState.audioInfo != null &&
-          appState.audioInfo!['durationMs'] != null) {
+      if (appState.audioInfo != null && appState.audioInfo!['durationMs'] != null) {
         estimatedDurationMs = appState.audioInfo!['durationMs'];
       }
 
@@ -154,9 +144,7 @@ class AudioService {
       appState.waveformProgress = 1.0;
 
       if (kDebugMode) {
-        print(
-          'Fake waveform generated (${appState.selectedWaveformPattern.name.toUpperCase()} pattern)!',
-        );
+        print('Fake waveform generated (${appState.selectedWaveformPattern.name.toUpperCase()} pattern)!');
       }
     } catch (e) {
       appState.isExtracting = false;
@@ -204,14 +192,11 @@ class AudioService {
           break;
       }
 
-      final fileName =
-          'trimmed_audio_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
+      final fileName = 'trimmed_audio_${DateTime.now().millisecondsSinceEpoch}.$fileExtension';
       final outputPath = '${directory.path}/$fileName';
 
       if (kDebugMode) {
-        print(
-          'Trimming audio to: $outputPath (format: ${appState.selectedTrimFormat.name})',
-        );
+        print('Trimming audio to: $outputPath (format: ${appState.selectedTrimFormat.name})');
       }
 
       final result = await appState.audioToolkit.trimAudio(
@@ -319,15 +304,64 @@ class AudioService {
       appState.waveformProgress = 1.0;
 
       if (kDebugMode) {
-        print(
-          'Fake waveform generated for URL (${appState.selectedWaveformPattern.name.toUpperCase()} pattern)!',
-        );
+        print('Fake waveform generated for URL (${appState.selectedWaveformPattern.name.toUpperCase()} pattern)!');
       }
     } catch (e) {
       appState.isExtracting = false;
       appState.isFakeWaveformMode = false;
       if (kDebugMode) {
         print('Failed to generate fake waveform from URL: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Analyzes audio for noise detection and quality metrics
+  static Future<NoiseDetectionResult> analyzeAudioNoise(String filePath, {ProgressCallback? onProgress}) async {
+    try {
+      final toolkit = FlutterAudioToolkit();
+
+      // Perform comprehensive noise analysis
+      final result = await toolkit.analyzeNoise(inputPath: filePath, onProgress: onProgress);
+
+      if (kDebugMode) {
+        print('Audio analysis completed: ${result.detectedNoises.length} noise types detected');
+        print('Quality grade: ${result.qualityMetrics.grade.description}');
+      }
+
+      return result;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to analyze audio noise: $e');
+      }
+      rethrow;
+    }
+  }
+
+  /// Analyzes audio noise from URL
+  static Future<NoiseDetectionResult> analyzeAudioNoiseFromUrl(
+    String url,
+    String localPath, {
+    ProgressCallback? onProgress,
+  }) async {
+    try {
+      final toolkit = FlutterAudioToolkit();
+
+      final result = await toolkit.analyzeNoiseFromUrl(
+        url: url,
+        localPath: localPath,
+        onDownloadProgress: onProgress,
+        onAnalysisProgress: onProgress,
+      );
+
+      if (kDebugMode) {
+        print('Audio analysis from URL completed: ${result.detectedNoises.length} noise types detected');
+      }
+
+      return result;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Failed to analyze audio noise from URL: $e');
       }
       rethrow;
     }

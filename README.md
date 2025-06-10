@@ -7,7 +7,10 @@ A comprehensive Flutter plugin for native audio processing that provides convers
 - **🔄 Audio Conversion**: Convert audio files between formats (MP3, WAV, OGG → AAC, M4A)
 - **✂️ Audio Trimming**: Precise audio trimming with lossless and lossy options
 - **📊 Waveform Extraction**: Extract amplitude data for visual waveform displays
-- **🎨 Fake Waveform Generation**: Generate realistic waveform patterns for testing and previews
+- **🎨 Enhanced Waveform Generation**: 25+ realistic waveform patterns with visual styling
+- **🔊 Noise Detection & Analysis**: Comprehensive audio quality analysis and noise identification
+- **📈 Audio Quality Metrics**: Peak levels, SNR, dynamic range, frequency analysis
+- **🎵 Background Noise Identification**: Detect car horns, dog barking, music, speech, and more
 - **🌐 Network Audio Processing**: Download and process audio files from URLs
 - **📋 Audio Analysis**: Comprehensive audio file information and metadata
 - **⚡ Native Performance**: Uses platform-optimized native libraries (MediaCodec, AVFoundation)
@@ -38,7 +41,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_audio_toolkit: ^0.0.1
+  flutter_audio_toolkit: ^0.3.0
 ```
 
 ## 📖 Usage
@@ -227,11 +230,139 @@ final networkWaveform = await audioToolkit.extractWaveformFromUrl(
 // Generate consistent fake waveform for a URL (useful for previews)
 final fakeUrlWaveform = audioToolkit.generateFakeWaveformForUrl(
   url: 'https://example.com/audio.mp3',
-  pattern: WaveformPattern.music,
-  estimatedDurationMs: 180000, // 3 minutes estimated
+  pattern: WaveformPattern.music,  estimatedDurationMs: 180000, // 3 minutes estimated
   samplesPerSecond: 100,
 );
 ```
+
+### 🔊 Noise Detection & Audio Quality Analysis
+
+**New in v0.3.0!** Comprehensive noise detection and audio quality analysis to identify background noises, audio issues, and provide detailed quality metrics:
+
+```dart
+// Analyze audio for noise and quality metrics
+final analysisResult = await audioToolkit.analyzeAudioNoise(
+  inputPath: '/path/to/audio.mp3',
+  onProgress: (progress) {
+    print('Analysis progress: ${(progress * 100).toStringAsFixed(1)}%');
+  },
+);
+
+// Access quality metrics
+final quality = analysisResult.qualityMetrics;
+if (quality != null) {
+  print('Quality Grade: ${quality.grade.description}');     // Excellent, Good, Fair, Poor, Very Poor
+  print('Peak Level: ${quality.peakLevelFormatted}');       // e.g., "-3.2 dBFS"
+  print('Average Level: ${quality.averageLevelFormatted}'); // e.g., "-18.5 dBFS"
+  print('SNR: ${quality.snrFormatted}');                    // Signal-to-noise ratio
+  print('Loudness: ${quality.lufsFormatted}');              // LUFS measurement
+  print('Dynamic Range: ${quality.dynamicRange.toStringAsFixed(1)} dB');
+  print('Overall Score: ${(quality.overallScore * 100).toStringAsFixed(1)}%');
+  
+  // Check for specific issues
+  if (quality.hasClipping) print('⚠️ Audio clipping detected');
+  if (quality.hasDistortion) print('⚠️ Distortion present');
+  if (quality.hasBalanceIssues) print('⚠️ Stereo balance issues');
+}
+
+// Check detected background noises
+for (final noise in analysisResult.detectedNoises) {
+  print('🔊 Detected: ${noise.type.displayName}');
+  print('   Confidence: ${(noise.confidence * 100).toStringAsFixed(1)}%');
+  print('   Description: ${noise.description}');
+  
+  // Time segments where noise was found
+  for (final segment in noise.timeSegments) {
+    print('   Found at: ${segment.startTimeFormatted} - ${segment.endTimeFormatted}');
+    print('   Intensity: ${(segment.intensity * 100).toStringAsFixed(1)}%');
+  }
+}
+
+// Frequency analysis
+final freqAnalysis = analysisResult.frequencyAnalysis;
+if (freqAnalysis != null) {
+  print('🎵 Frequency Distribution: ${freqAnalysis.frequencyDistribution}');
+  print('🎵 Dominant Frequency: ${freqAnalysis.dominantFrequency.toStringAsFixed(1)} Hz');
+  print('🎵 Tonal Characteristics: ${freqAnalysis.tonalCharacteristics.join(', ')}');
+}
+```
+
+#### Supported Noise Types
+
+The noise detection system can identify 15+ different types of background noise:
+
+| Noise Type | Description | Common Sources |
+|------------|-------------|----------------|
+| **Traffic** | Vehicle sounds, road noise | Cars, trucks, motorcycles |
+| **Construction** | Building/demolition sounds | Hammering, drilling, machinery |
+| **Nature** | Natural environmental sounds | Wind, rain, thunder |
+| **Animals** | Animal vocalizations | Dogs barking, cats, birds |
+| **Music** | Background musical content | Radio, speakers, instruments |
+| **Speech** | Human conversation | Talking, crowd chatter |
+| **Machinery** | Mechanical/electrical noise | Fans, AC units, appliances |
+| **Electronic** | Digital/electrical interference | Hum, buzz, static |
+| **Wind** | Wind noise on microphone | Outdoor recording issues |
+| **Aircraft** | Airplane/helicopter sounds | Aviation noise |
+| **Emergency** | Sirens and alarms | Police, fire, ambulance |
+| **Urban** | General city noise | Traffic, crowds, activity |
+| **Household** | Domestic sounds | TV, appliances, movement |
+| **Industrial** | Factory/workshop noise | Heavy machinery, tools |
+| **Water** | Water-related sounds | Rain, streams, dripping |
+
+```dart
+// Analyze network audio file
+final networkAnalysis = await audioToolkit.analyzeAudioNoiseFromUrl(
+  url: 'https://example.com/audio.mp3',
+  localPath: '/tmp/analysis_audio.mp3',
+  onProgress: (progress) {
+    print('Download & Analysis: ${(progress * 100).toStringAsFixed(1)}%');
+  },
+);
+```
+
+### 🎨 Enhanced Waveform Generation
+
+**Enhanced in v0.3.0!** Generate 25+ realistic waveform patterns with visual styling options:
+
+```dart
+// Generate waveforms with automatic styling
+final themedWaveform = audioToolkit.generateThemedWaveform(
+  pattern: WaveformPattern.jazz,
+  durationMs: 30000,
+);
+
+// Generate waveforms with custom styling
+final styledWaveform = audioToolkit.generateStyledWaveform(
+  pattern: WaveformPattern.electronic,
+  style: WaveformColorSchemes.neon,
+  durationMs: 25000,
+);
+
+// Apply styling to existing waveform
+final waveformWithStyle = existingWaveform.withStyle(WaveformColorSchemes.fire);
+```
+
+#### Available Waveform Patterns
+
+**Basic Waveforms**: `sine`, `square`, `sawtooth`, `triangle`, `random`, `pulse`, `fade`, `burst`
+
+**Musical Patterns**: `music`, `electronic`, `classical`, `rock`, `jazz`, `ambient`
+
+**Voice & Speech**: `speech`, `podcast`, `audiobook`
+
+**Nature & Relaxation**: `whiteNoise`, `pinkNoise`, `heartbeat`, `ocean`, `rain`, `binauralBeats`
+
+#### Predefined Color Schemes
+
+- `WaveformColorSchemes.classic` - Classic blue waveform
+- `WaveformColorSchemes.fire` - Fire/heat color scheme
+- `WaveformColorSchemes.ocean` - Ocean/water colors
+- `WaveformColorSchemes.forest` - Forest/nature colors
+- `WaveformColorSchemes.neon` - Neon/cyberpunk style
+- `WaveformColorSchemes.monochrome` - Grayscale
+- `WaveformColorSchemes.sunset` - Sunset colors
+- `WaveformColorSchemes.professional` - Professional/business
+- `WaveformColorSchemes.visualizer` - Music visualizer style
 
 ### 🔍 Format Validation
 

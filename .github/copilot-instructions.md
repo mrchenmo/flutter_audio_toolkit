@@ -6,6 +6,7 @@ This is a Flutter plugin project for
 1. audio conversion
 2. trim audio file with range selection
 3. waveform extraction with visualualization options 
+4. generate noise levels report as noise meter.
 
 ## Key Requirements:
 - Use native implementations only (no FFmpeg or deprecated libraries)
