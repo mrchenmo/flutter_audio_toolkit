@@ -105,7 +105,6 @@ class AudioPlayerColors {
 
   /// Background color for controls
   final Color? backgroundColor;
-
   const AudioPlayerColors({
     this.playButtonColor = Colors.blue,
     this.playIconColor = Colors.white,

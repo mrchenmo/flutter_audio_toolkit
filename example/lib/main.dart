@@ -141,11 +141,12 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
                   NoiseDetectionWidget(
                     appState: appState,
                     onStateChanged: _onStateChanged,
-                  ),
-
-                  // Audio Player Demo Section
+                  ), // Audio Player Demo Section
                   const SizedBox(height: 16),
-                  AudioPlayerDemoWidget(appState: appState),
+                  SizedBox(
+                    height: 600, // Fixed height for tab view
+                    child: AudioPlayerDemoWidget(appState: appState),
+                  ),
                 ],
               ],
             ),

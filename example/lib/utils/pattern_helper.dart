@@ -15,30 +15,9 @@ class PatternHelper {
         return 'Speech - Speech-like with pauses';
       case WaveformPattern.pulse:
         return 'Pulse - Rhythmic pulse/beat pattern';
-      case WaveformPattern.fade:
-        return 'Fade - Gradual fade in/out';
-      case WaveformPattern.burst:
-        return 'Burst - Sudden bursts with quiet periods';
-      case WaveformPattern.square:
-        return 'Square Wave - Sharp transitions between high/low';
-      case WaveformPattern.sawtooth:
-        return 'Sawtooth - Linear ramp up pattern';
-      case WaveformPattern.triangle:
-        return 'Triangle - Symmetric up/down ramps';
-      case WaveformPattern.electronic:
-        return 'Electronic - EDM with beats and drops';
-      case WaveformPattern.classical:
-        return 'Classical - Orchestral dynamics';
-      case WaveformPattern.rock:
-        return 'Rock - Heavy beats and guitar riffs';
-      case WaveformPattern.jazz:
-        return 'Jazz - Swing rhythm and improvisation';
       case WaveformPattern.ambient:
         return 'Ambient - Slow evolving textures';
-      case WaveformPattern.podcast:
-        return 'Podcast - Clear speech with pauses';
-      case WaveformPattern.audiobook:
-        return 'Audiobook - Consistent narration';
+
       case WaveformPattern.whiteNoise:
         return 'White Noise - Random sound masking';
       case WaveformPattern.pinkNoise:
@@ -51,6 +30,8 @@ class PatternHelper {
         return 'Rain - Varying intensity rainfall';
       case WaveformPattern.binauralBeats:
         return 'Binaural Beats - Meditation frequency patterns';
+      default:
+        return 'Modern Audio Pattern - Contemporary style waveform';
     }
   }
 
@@ -58,26 +39,15 @@ class PatternHelper {
   static String getPatternCategory(WaveformPattern pattern) {
     switch (pattern) {
       case WaveformPattern.sine:
-      case WaveformPattern.square:
-      case WaveformPattern.sawtooth:
-      case WaveformPattern.triangle:
       case WaveformPattern.random:
       case WaveformPattern.pulse:
-      case WaveformPattern.fade:
-      case WaveformPattern.burst:
         return 'Basic Waveforms';
 
       case WaveformPattern.music:
-      case WaveformPattern.electronic:
-      case WaveformPattern.classical:
-      case WaveformPattern.rock:
-      case WaveformPattern.jazz:
       case WaveformPattern.ambient:
         return 'Musical';
 
       case WaveformPattern.speech:
-      case WaveformPattern.podcast:
-      case WaveformPattern.audiobook:
         return 'Voice & Speech';
 
       case WaveformPattern.whiteNoise:
@@ -87,6 +57,28 @@ class PatternHelper {
       case WaveformPattern.rain:
       case WaveformPattern.binauralBeats:
         return 'Nature & Relaxation';
+      case WaveformPattern.trapBeat:
+      case WaveformPattern.edmDrop:
+      case WaveformPattern.lofiHipHop:
+      case WaveformPattern.synthwave:
+      case WaveformPattern.futureBass:
+      case WaveformPattern.dubstep:
+      case WaveformPattern.houseMusic:
+      case WaveformPattern.techno:
+      case WaveformPattern.vaporwave:
+      case WaveformPattern.phonk:
+      case WaveformPattern.retrowave:
+      case WaveformPattern.cyberpunk:
+      case WaveformPattern.neonLights:
+      case WaveformPattern.gaming:
+      case WaveformPattern.cinematicEpic:
+      case WaveformPattern.digitalGlitch:
+      case WaveformPattern.crystalClear:
+      case WaveformPattern.deepBass:
+      case WaveformPattern.highEnergy:
+      case WaveformPattern.darkAmbient:
+      case WaveformPattern.chillWave:
+        return 'Modern';
     }
   }
 

@@ -44,34 +44,50 @@ class LibFakeWaveformPlayerWidget extends StatefulWidget {
 
 class _LibFakeWaveformPlayerWidgetState
     extends State<LibFakeWaveformPlayerWidget> {
-  WaveformPattern _selectedPattern = WaveformPattern.music;
+  WaveformPattern _selectedPattern = WaveformPattern.edmDrop;
   int _samplesPerSecond = 100;
 
-  // Available patterns with user-friendly names
+  // Available patterns with user-friendly names - featuring modern & eye-catching patterns
   static const Map<WaveformPattern, String> _patternNames = {
-    WaveformPattern.music: 'Music',
-    WaveformPattern.speech: 'Speech',
-    WaveformPattern.electronic: 'Electronic',
-    WaveformPattern.classical: 'Classical',
-    WaveformPattern.rock: 'Rock',
-    WaveformPattern.jazz: 'Jazz',
-    WaveformPattern.ambient: 'Ambient',
-    WaveformPattern.podcast: 'Podcast',
-    WaveformPattern.audiobook: 'Audiobook',
-    WaveformPattern.sine: 'Sine Wave',
-    WaveformPattern.random: 'Random',
-    WaveformPattern.pulse: 'Pulse',
-    WaveformPattern.fade: 'Fade',
-    WaveformPattern.burst: 'Burst',
-    WaveformPattern.square: 'Square Wave',
-    WaveformPattern.sawtooth: 'Sawtooth',
-    WaveformPattern.triangle: 'Triangle',
-    WaveformPattern.whiteNoise: 'White Noise',
-    WaveformPattern.pinkNoise: 'Pink Noise',
-    WaveformPattern.heartbeat: 'Heartbeat',
-    WaveformPattern.ocean: 'Ocean Waves',
-    WaveformPattern.rain: 'Rain',
-    WaveformPattern.binauralBeats: 'Binaural Beats',
+    // 🎨 Modern & Eye-Catching Patterns (Featured)
+    WaveformPattern.edmDrop: '🎵 EDM Drop',
+    WaveformPattern.trapBeat: '🎤 Trap Beat',
+    WaveformPattern.synthwave: '🌊 Synthwave',
+    WaveformPattern.futureBass: '🔊 Future Bass',
+    WaveformPattern.dubstep: '💥 Dubstep',
+    WaveformPattern.lofiHipHop: '🎧 Lo-fi Hip Hop',
+    WaveformPattern.cyberpunk: '🤖 Cyberpunk',
+    WaveformPattern.neonLights: '💡 Neon Lights',
+    WaveformPattern.retrowave: '📼 Retrowave',
+    WaveformPattern.vaporwave: '🌴 Vaporwave',
+    WaveformPattern.phonk: '🏎️ Phonk',
+    WaveformPattern.gaming: '🎮 Gaming',
+    WaveformPattern.cinematicEpic: '🎬 Cinematic Epic',
+    WaveformPattern.digitalGlitch: '⚡ Digital Glitch',
+    WaveformPattern.crystalClear: '💎 Crystal Clear',
+    WaveformPattern.deepBass: '🔊 Deep Bass',
+    WaveformPattern.highEnergy: '⚡ High Energy',
+
+    // 🎵 Music Genre Patterns
+    WaveformPattern.music: '🎵 Music',
+    WaveformPattern.ambient: '🌌 Ambient',
+    WaveformPattern.houseMusic: '🏠 House Music',
+    WaveformPattern.techno: '🔧 Techno',
+    // 🎤 Voice & Speech Patterns
+    WaveformPattern.speech: '🗣️ Speech',
+
+    // 🌊 Basic Waveforms
+    WaveformPattern.sine: '🌊 Sine Wave',
+    WaveformPattern.random: '🎲 Random',
+    WaveformPattern.pulse: '💓 Pulse',
+
+    // 🌿 Nature & Relaxation
+    WaveformPattern.heartbeat: '💓 Heartbeat',
+    WaveformPattern.ocean: '🌊 Ocean Waves',
+    WaveformPattern.rain: '🌧️ Rain',
+    WaveformPattern.whiteNoise: '⚪ White Noise',
+    WaveformPattern.pinkNoise: '🌸 Pink Noise',
+    WaveformPattern.binauralBeats: '🧘 Binaural Beats',
   };
 
   @override
@@ -201,30 +217,17 @@ class _LibFakeWaveformPlayerWidgetState
                   progressActiveColor: Colors.purple,
                   progressInactiveColor: Colors.grey,
                   timeLabelColor: Colors.black87,
+                  backgroundColor:
+                      Colors
+                          .transparent, // Explicitly set transparent background
                 ),
               ),
               callbacks: AudioPlayerCallbacks(
-                onStateChanged: (state) {
-                  debugPrint('Lib Fake Player state changed: $state');
-                },
-                onPositionChanged: (position) {
-                  debugPrint(
-                    'Lib Fake Player position changed: ${position.inSeconds}s',
-                  );
-                },
-                onDurationChanged: (duration) {
-                  debugPrint(
-                    'Lib Fake Player duration: ${duration.inSeconds}s',
-                  );
-                },
-                onSeek: (position) {
-                  debugPrint(
-                    'Lib Fake Player seeked to: ${position.inSeconds}s',
-                  );
-                },
-                onVolumeChanged: (volume) {
-                  debugPrint('Lib Fake Player volume changed: $volume');
-                },
+                onStateChanged: (state) {},
+                onPositionChanged: (position) {},
+                onDurationChanged: (duration) {},
+                onSeek: (position) {},
+                onVolumeChanged: (volume) {},
                 onError: (error) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Lib Fake Player error: $error')),
@@ -271,52 +274,84 @@ class _LibFakeWaveformPlayerWidgetState
 
   String _getPatternDescription(WaveformPattern pattern) {
     switch (pattern) {
+      // 🎨 Modern & Eye-Catching Patterns
+      case WaveformPattern.edmDrop:
+        return 'Electronic Dance Music with explosive drops and energy builds';
+      case WaveformPattern.trapBeat:
+        return 'Modern trap/hip-hop with heavy bass drops and snares';
+      case WaveformPattern.synthwave:
+        return 'Retro 80s style with neon-soaked nostalgia and synths';
+      case WaveformPattern.futureBass:
+        return 'Melodic drops with emotional builds and future vibes';
+      case WaveformPattern.dubstep:
+        return 'Heavy wobbles, drops, and electronic mayhem';
+      case WaveformPattern.lofiHipHop:
+        return 'Chill, relaxed vibes with vinyl crackle aesthetic';
+      case WaveformPattern.cyberpunk:
+        return 'Dystopian, futuristic vibes with digital rebellion';
+      case WaveformPattern.neonLights:
+        return 'Pulsing, colorful rhythms like city neon signs';
+      case WaveformPattern.retrowave:
+        return 'Throwback classic vibes with vintage synthesizers';
+      case WaveformPattern.vaporwave:
+        return 'Dreamy, nostalgic aesthetics with slowed-down melodies';
+      case WaveformPattern.phonk:
+        return 'Dark, aggressive Memphis rap style with cowbells';
+      case WaveformPattern.gaming:
+        return 'Optimized for video game soundtracks and effects';
+      case WaveformPattern.cinematicEpic:
+        return 'Movie trailer style with dramatic orchestral builds';
+      case WaveformPattern.digitalGlitch:
+        return 'Glitchy artifacts with digital corruption effects';
+      case WaveformPattern.crystalClear:
+        return 'Pristine, bell-like tones with perfect clarity';
+      case WaveformPattern.deepBass:
+        return 'Emphasizes low-frequency content and sub-bass';
+      case WaveformPattern.highEnergy:
+        return 'Intense, driving rhythms with maximum impact';
+
+      // 🎵 Music Genre Patterns
       case WaveformPattern.music:
         return 'General music pattern with dynamic peaks and valleys';
-      case WaveformPattern.speech:
-        return 'Speech pattern with pauses and varying amplitude';
-      case WaveformPattern.electronic:
-        return 'Electronic/synthesized music with sharp transitions';
-      case WaveformPattern.classical:
-        return 'Classical music with orchestral dynamics';
-      case WaveformPattern.rock:
-        return 'Rock music with heavy beats and sustained notes';
-      case WaveformPattern.jazz:
-        return 'Jazz pattern with improvisation and swing rhythms';
       case WaveformPattern.ambient:
         return 'Ambient/drone pattern with sustained tones';
-      case WaveformPattern.podcast:
-        return 'Clear speech pattern suitable for podcasts';
-      case WaveformPattern.audiobook:
-        return 'Consistent speech flow for audiobooks';
+      case WaveformPattern.houseMusic:
+        return 'Steady 4/4 beats perfect for dancing';
+      case WaveformPattern.techno:
+        return 'Driving repetitive beats with mechanical precision';
+
+      // 🎤 Voice & Speech Patterns
+      case WaveformPattern.speech:
+        return 'Speech pattern with pauses and varying amplitude';
+      // 🌊 Basic Waveforms
       case WaveformPattern.sine:
         return 'Smooth sine wave pattern';
       case WaveformPattern.random:
         return 'Random amplitude values';
       case WaveformPattern.pulse:
         return 'Pulse/beat pattern with regular intervals';
-      case WaveformPattern.fade:
-        return 'Gradual fade in/out pattern';
-      case WaveformPattern.burst:
-        return 'Burst pattern with quiet periods';
-      case WaveformPattern.square:
-        return 'Square wave with sharp transitions';
-      case WaveformPattern.sawtooth:
-        return 'Sawtooth wave with linear ramps';
-      case WaveformPattern.triangle:
-        return 'Triangle wave with symmetric ramps';
-      case WaveformPattern.whiteNoise:
-        return 'White noise for sound masking';
-      case WaveformPattern.pinkNoise:
-        return 'Pink noise with frequency-dependent amplitude';
+
+      // 🌿 Nature & Relaxation
       case WaveformPattern.heartbeat:
         return 'Heartbeat pattern for relaxation';
       case WaveformPattern.ocean:
         return 'Ocean waves pattern for nature sounds';
       case WaveformPattern.rain:
         return 'Rain pattern for ambient sound';
+      case WaveformPattern.whiteNoise:
+        return 'White noise for sound masking';
+      case WaveformPattern.pinkNoise:
+        return 'Pink noise with frequency-dependent amplitude';
       case WaveformPattern.binauralBeats:
         return 'Binaural beats pattern for meditation';
+
+      // 🎨 Creative & Artistic
+      case WaveformPattern.darkAmbient:
+        return 'Mysterious, haunting tones with dark atmosphere';
+
+      // Default for any new patterns not yet described
+      default:
+        return 'Unique waveform pattern with distinctive characteristics';
     }
   }
 }

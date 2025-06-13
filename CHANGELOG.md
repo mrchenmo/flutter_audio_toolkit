@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.3.3] - 2025-06-10
+-  Bug Fixes
+
 ## [0.3.2] - 2025-06-13
 
 ### 🆕 Audio Player Features

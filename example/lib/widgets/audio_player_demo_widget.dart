@@ -7,6 +7,7 @@ import 'player_type_selector_widget.dart';
 import 'true_waveform_player_widget.dart';
 import 'custom_fake_waveform_player.dart';
 import 'lib_fake_waveform_player_widget.dart';
+import 'remote_audio_demo_widget.dart';
 import 'audio_player_documentation_widget.dart';
 
 /// Main audio player demo widget that coordinates all audio player components
@@ -19,10 +20,12 @@ class AudioPlayerDemoWidget extends StatefulWidget {
   State<AudioPlayerDemoWidget> createState() => _AudioPlayerDemoWidgetState();
 }
 
-class _AudioPlayerDemoWidgetState extends State<AudioPlayerDemoWidget> {
+class _AudioPlayerDemoWidgetState extends State<AudioPlayerDemoWidget>
+    with SingleTickerProviderStateMixin {
   WaveformData? _extractedWaveform;
   bool _isExtracting = false;
   PlayerType _selectedPlayerType = PlayerType.libFakeWaveform;
+  late TabController _tabController;
 
   // Example audio player service for real playback
   ExampleAudioPlayerService? _examplePlayerService;
@@ -30,12 +33,14 @@ class _AudioPlayerDemoWidgetState extends State<AudioPlayerDemoWidget> {
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _initializeExamplePlayer();
   }
 
   @override
   void dispose() {
     _examplePlayerService?.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -112,17 +117,56 @@ class _AudioPlayerDemoWidgetState extends State<AudioPlayerDemoWidget> {
 
   @override
   Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Audio Player Demo',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Explore different audio player types with local files and remote URLs',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              ),
+            ],
+          ),
+        ),
+
+        // Tab bar
+        TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.music_note), text: 'Player Types'),
+            Tab(icon: Icon(Icons.cloud_download), text: 'Remote Audio'),
+          ],
+        ),
+
+        // Tab view content
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [_buildPlayerTypesTab(), _buildRemoteAudioTab()],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlayerTypesTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Audio Player Demo',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 16),
-
           // File selection component
           FileSelectionWidget(
             selectedFilePath: _selectedAudioPath,
@@ -140,15 +184,22 @@ class _AudioPlayerDemoWidgetState extends State<AudioPlayerDemoWidget> {
 
           const SizedBox(height: 24),
 
-          // Audio Player based on selected type
+          // Display selected player
           _buildSelectedPlayer(),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
 
           // Documentation component
           const AudioPlayerDocumentationWidget(),
         ],
       ),
+    );
+  }
+
+  Widget _buildRemoteAudioTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: RemoteAudioDemoWidget(localAudioPath: _selectedAudioPath),
     );
   }
 

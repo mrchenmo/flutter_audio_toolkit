@@ -56,7 +56,6 @@ class AudioPlayerControls extends StatelessWidget {
         controls = _buildOverlayControls(colors, context);
         break;
     }
-
     if (isOverlay) {
       return Container(
         decoration: BoxDecoration(
@@ -67,8 +66,11 @@ class AudioPlayerControls extends StatelessWidget {
       );
     }
 
+    // Use transparent background unless a specific color is set
     return Container(
-      decoration: BoxDecoration(color: colors.backgroundColor),
+      decoration: BoxDecoration(
+        color: colors.backgroundColor ?? Colors.transparent,
+      ),
       child: controls,
     );
   }
@@ -177,20 +179,34 @@ class AudioPlayerControls extends StatelessWidget {
   }
 
   Widget _buildPlayPauseButton(AudioPlayerColors colors) {
-    return SizedBox(
+    // Use Material to create a circular button with proper styling
+    return Container(
       width: config.buttonSize,
       height: config.buttonSize,
-      child: ElevatedButton(
-        onPressed: config.enabled ? onPlayPause : null,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colors.playButtonColor,
-          foregroundColor: colors.playIconColor,
-          shape: const CircleBorder(),
-          padding: EdgeInsets.zero,
-        ),
-        child: Icon(
-          stateManager.isPlaying ? Icons.pause : Icons.play_arrow,
-          size: config.buttonSize * 0.6,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.transparent, // Transparent background
+      ),
+      child: Material(
+        color: Colors.transparent, // Important: transparent material background
+        child: InkWell(
+          onTap: config.enabled ? onPlayPause : null,
+          borderRadius: BorderRadius.circular(
+            config.buttonSize / 2,
+          ), // Circular shape
+          child: Ink(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: colors.playButtonColor,
+            ),
+            child: Center(
+              child: Icon(
+                stateManager.isPlaying ? Icons.pause : Icons.play_arrow,
+                color: colors.playIconColor,
+                size: config.buttonSize * 0.6,
+              ),
+            ),
+          ),
         ),
       ),
     );

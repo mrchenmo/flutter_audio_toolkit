@@ -111,7 +111,10 @@ class FilePickerWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             TextField(
-              controller: appState.urlController,
+              controller: TextEditingController(
+                text:
+                    'https://ro-prod-content.blr1.cdn.digitaloceanspaces.com/dolby/previews/fr_marchingband_a.mp4',
+              ), // appState.urlController,
               decoration: const InputDecoration(
                 hintText: 'https://example.com/audio.mp3',
                 labelText: 'Audio File URL',

@@ -90,36 +90,59 @@ class AudioPlayerService {
   Future<void> loadAudio(String audioPath) async {
     if (_isDisposed) throw StateError('Player has been disposed');
 
+    debugPrint('AudioPlayerService: Loading audio file: $audioPath');
     try {
       stateManager.updateState(AudioPlayerState.loading);
       stateManager.clearError();
 
-      // Verify file exists
-      final file = File(audioPath);
-      if (!await file.exists()) {
-        throw FileSystemException('Audio file not found', audioPath);
-      } // Mock implementation - simulate loading delay
-      await Future.delayed(const Duration(milliseconds: 500));
+      // Check if it's a URL or local file
+      bool isUrl =
+          audioPath.startsWith('http://') || audioPath.startsWith('https://');
+      debugPrint('AudioPlayerService: Is URL: $isUrl');
 
-      // Get the actual audio duration from audio metadata
       int actualDurationMs;
-      try {
-        final audioInfo = await AudioService.getAudioInfo(audioPath);
-        actualDurationMs =
-            audioInfo['durationMs'] ?? audioInfo['duration'] ?? 30000;
-        debugPrint(
-          'Got actual audio duration from metadata: ${actualDurationMs}ms',
-        );
-      } catch (e) {
-        debugPrint(
-          'Failed to get audio duration from metadata: $e, using file size estimate',
-        );
-        // Fallback to file size estimate with a more reasonable range
-        final fileStat = await file.stat();
-        actualDurationMs =
-            (fileStat.size / 1000)
-                .clamp(10000, 3600000)
-                .toInt(); // 10s to 60min based on file size
+
+      if (isUrl) {
+        // For URLs, we need to download or at least get headers to determine duration
+        // But in this example, we'll use a reasonable default
+        debugPrint('AudioPlayerService: URL detected, using default duration');
+        actualDurationMs = 30000; // Default 30 seconds for URLs
+
+        // Simulate loading delay
+        await Future.delayed(const Duration(milliseconds: 500));
+      } else {
+        // Verify local file exists
+        final file = File(audioPath);
+        if (!await file.exists()) {
+          debugPrint('AudioPlayerService: File not found: $audioPath');
+          throw FileSystemException('Audio file not found', audioPath);
+        }
+
+        // Mock implementation - simulate loading delay
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // Get the actual audio duration from audio metadata
+        try {
+          final audioInfo = await AudioService.getAudioInfo(audioPath);
+          actualDurationMs =
+              audioInfo['durationMs'] ?? audioInfo['duration'] ?? 30000;
+          debugPrint(
+            'AudioPlayerService: Got actual audio duration from metadata: ${actualDurationMs}ms',
+          );
+        } catch (e) {
+          debugPrint(
+            'AudioPlayerService: Failed to get audio duration from metadata: $e, using file size estimate',
+          );
+          // Fallback to file size estimate with a more reasonable range
+          final fileStat = await file.stat();
+          actualDurationMs =
+              (fileStat.size / 1000)
+                  .clamp(10000, 3600000)
+                  .toInt(); // 10s to 60min based on file size
+          debugPrint(
+            'AudioPlayerService: Estimated duration from file size: ${actualDurationMs}ms',
+          );
+        }
       }
 
       stateManager.updateDuration(Duration(milliseconds: actualDurationMs));
@@ -127,9 +150,11 @@ class AudioPlayerService {
       stateManager.updateState(AudioPlayerState.stopped);
 
       debugPrint(
-        'Mock audio loaded: $audioPath (actual duration: ${actualDurationMs}ms)',
+        'AudioPlayerService: Audio loaded: $audioPath (duration: ${actualDurationMs}ms)',
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('AudioPlayerService: Failed to load audio: $e');
+      debugPrint('AudioPlayerService: Stack trace: $stackTrace');
       stateManager.setError('Failed to load audio: $e');
       rethrow;
     }
@@ -160,9 +185,28 @@ class AudioPlayerService {
     WaveformPattern pattern = WaveformPattern.music,
     int samplesPerSecond = 100,
   }) async {
-    await loadAudio(audioPath);
+    debugPrint(
+      'AudioPlayerService: Loading audio with fake waveform: $audioPath',
+    );
 
     try {
+      await loadAudio(audioPath);
+
+      debugPrint(
+        'AudioPlayerService: Audio loaded, generating fake waveform with pattern: ${pattern.name}',
+      );
+      debugPrint(
+        'AudioPlayerService: Duration for waveform: ${stateManager.duration.inMilliseconds}ms',
+      );
+
+      // Check if duration is valid
+      if (stateManager.duration.inMilliseconds <= 0) {
+        debugPrint(
+          'AudioPlayerService: Invalid duration: ${stateManager.duration.inMilliseconds}ms. Using default 30 seconds.',
+        );
+        stateManager.updateDuration(const Duration(seconds: 30));
+      }
+
       // Generate fake waveform based on pattern
       final fakeWaveform = WaveformGenerator.generateFakeWaveform(
         pattern: pattern,
@@ -170,9 +214,29 @@ class AudioPlayerService {
         samplesPerSecond: samplesPerSecond,
       );
 
+      debugPrint(
+        'AudioPlayerService: Generated fake waveform with ${fakeWaveform.amplitudes.length} samples',
+      );
+
       stateManager.setWaveformData(fakeWaveform);
-    } catch (e) {
-      debugPrint('Warning: Failed to generate fake waveform: $e');
+      debugPrint('AudioPlayerService: Waveform data set successfully');
+    } catch (e, stackTrace) {
+      debugPrint('AudioPlayerService: Failed to generate fake waveform: $e');
+      debugPrint('AudioPlayerService: Stack trace: $stackTrace');
+      // Create a simple default waveform as fallback
+      try {
+        final defaultWaveform = WaveformGenerator.generateFakeWaveform(
+          pattern: WaveformPattern.sine,
+          durationMs: 30000, // 30 seconds default
+          samplesPerSecond: samplesPerSecond,
+        );
+        stateManager.setWaveformData(defaultWaveform);
+        debugPrint('AudioPlayerService: Set default fallback waveform');
+      } catch (e2) {
+        debugPrint(
+          'AudioPlayerService: Even fallback waveform generation failed: $e2',
+        );
+      }
     }
   }
 
@@ -278,9 +342,26 @@ class AudioPlayerService {
 
   /// Toggles between play and pause
   Future<void> togglePlayPause() async {
+    debugPrint(
+      'AudioPlayerService: togglePlayPause called. Current state: ${stateManager.state}',
+    );
+
     if (stateManager.isPlaying) {
+      debugPrint('AudioPlayerService: Currently playing, will pause');
       await pause();
     } else {
+      debugPrint('AudioPlayerService: Currently not playing, will play');
+      // If we're in error state, try to reload the audio first
+      if (stateManager.hasError) {
+        debugPrint('AudioPlayerService: Recovering from error state');
+        if (stateManager.audioPath != null) {
+          try {
+            await loadAudio(stateManager.audioPath!);
+          } catch (e) {
+            debugPrint('AudioPlayerService: Failed to reload audio: $e');
+          }
+        }
+      }
       await play();
     }
   }
