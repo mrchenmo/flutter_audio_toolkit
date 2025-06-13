@@ -4,6 +4,13 @@ import 'src/flutter_audio_toolkit_src.dart';
 // Re-export all models and types for public API
 export 'src/models/models.dart';
 
+// Export audio player widgets and services
+export 'src/widgets/true_waveform_audio_player.dart';
+export 'src/widgets/fake_waveform_audio_player.dart';
+export 'src/widgets/audio_player_controls.dart';
+export 'src/widgets/waveform_visualizer.dart';
+export 'src/core/audio_player_service.dart';
+
 /// Main class for audio conversion, trimming, and waveform extraction
 ///
 /// This class provides a high-level API for audio processing operations

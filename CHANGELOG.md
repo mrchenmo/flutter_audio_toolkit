@@ -1,5 +1,42 @@
 # Changelog
 
+## [0.3.2] - 2025-06-13
+
+### 🆕 Audio Player Features
+
+#### 🎵 Interactive Audio Players with Waveform Visualization
+- **TrueWaveformAudioPlayer**: Audio player using real extracted waveform data
+- **FakeWaveformAudioPlayer**: Audio player using generated waveform patterns
+- **Interactive Waveform**: Tap-to-seek functionality on waveform display
+- **Customizable Controls**: Configurable play/pause, volume, progress, and time labels
+- **Flexible Control Layouts**: Position controls top, bottom, overlay, left, or right
+- **Real-time Progress**: Visual progress overlay showing played portion
+- **Position Indicator**: Real-time playback position marker on waveform
+- **Event Callbacks**: Comprehensive event system for state, position, and error handling
+
+#### 🎮 Player Configuration Options
+- **AudioPlayerControlsConfig**: Complete control customization (buttons, colors, positions)
+- **WaveformVisualizationConfig**: Waveform styling and interaction settings
+- **AudioPlayerColors**: Comprehensive color theming for all UI elements
+- **AudioPlayerCallbacks**: Event handling for all player interactions
+
+#### 🎨 Enhanced Visual Features
+- **Customizable Waveform Styles**: Colors, gradients, line widths, opacity
+- **Progress Visualization**: Different colors for played/unplayed portions
+- **Control Theming**: Fully customizable button colors and styles
+- **Responsive Design**: Adaptive layouts for different screen sizes
+
+### 🔧 Implementation Details
+- **Native Audio Playback**: Platform-optimized audio rendering
+- **Memory Efficient**: Optimized waveform rendering and audio processing
+- **Background Threading**: Audio operations on background threads
+- **State Management**: Robust state management for player controls and visualization
+
+### 📚 Documentation
+- **Complete Audio Player Guide**: Comprehensive guide with examples and best practices
+- **Example Integration**: Full working example in demo app
+- **API Documentation**: Detailed parameter documentation for all new classes
+
 ## [0.3.1] - 2025-06-10
 - Fixed Dart Format Issues
 

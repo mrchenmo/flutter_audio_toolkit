@@ -3,7 +3,6 @@ import 'package:flutter_audio_toolkit/flutter_audio_toolkit.dart';
 import '../models/app_state.dart';
 import '../services/audio_service.dart';
 import '../utils/pattern_helper.dart';
-import 'waveform_painter.dart';
 
 /// Widget for waveform extraction and display
 class WaveformWidget extends StatelessWidget {
@@ -192,7 +191,19 @@ class WaveformWidget extends StatelessWidget {
                     ),
                     child: CustomPaint(
                       painter: WaveformPainter(
-                        appState.waveformData!.amplitudes,
+                        waveformData: appState.waveformData!,
+                        config: WaveformVisualizationConfig(
+                          height: 100,
+                          interactive: true,
+                          style: const WaveformStyle(
+                            primaryColor: Colors.blue,
+                            lineWidth: 2.0,
+                          ),
+                        ),
+                        currentPosition: Duration.zero,
+                        duration: Duration(
+                          milliseconds: appState.waveformData!.durationMs,
+                        ),
                       ),
                       size: const Size.fromHeight(100),
                     ),

@@ -14,6 +14,7 @@ import 'widgets/conversion_widget.dart';
 import 'widgets/waveform_widget.dart';
 import 'widgets/trimming_widget.dart';
 import 'widgets/noise_detection_widget.dart';
+import 'widgets/audio_player_demo_widget.dart';
 
 void main() {
   runApp(const MyApp());
@@ -141,6 +142,10 @@ class _AudioToolkitHomeState extends State<AudioToolkitHome> {
                     appState: appState,
                     onStateChanged: _onStateChanged,
                   ),
+
+                  // Audio Player Demo Section
+                  const SizedBox(height: 16),
+                  AudioPlayerDemoWidget(appState: appState),
                 ],
               ],
             ),

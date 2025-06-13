@@ -8,6 +8,9 @@ A comprehensive Flutter plugin for native audio processing that provides convers
 - **✂️ Audio Trimming**: Precise audio trimming with lossless and lossy options
 - **📊 Waveform Extraction**: Extract amplitude data for visual waveform displays
 - **🎨 Enhanced Waveform Generation**: 25+ realistic waveform patterns with visual styling
+- **🎵 Audio Player with True Waveform**: Interactive audio player with real waveform visualization
+- **🎧 Audio Player with Fake Waveform**: Quick-loading audio player with generated waveforms
+- **🎮 Customizable Player Controls**: Play/pause, volume, seeking, time labels with flexible layouts
 - **🔊 Noise Detection & Analysis**: Comprehensive audio quality analysis and noise identification
 - **📈 Audio Quality Metrics**: Peak levels, SNR, dynamic range, frequency analysis
 - **🎵 Background Noise Identification**: Detect car horns, dog barking, music, speech, and more
@@ -379,6 +382,77 @@ if (isSupported) {
   print('❌ Unsupported format. Please use MP3, M4A, AAC, WAV, or OGG files');
 }
 ```
+
+### 🎵 Audio Player Widgets
+
+**New in v0.3.0!** Interactive audio players with customizable waveform visualization:
+
+#### True Waveform Audio Player
+
+Uses extracted waveform data from actual audio files for accurate visualization:
+
+```dart
+TrueWaveformAudioPlayer(
+  audioPath: 'path/to/audio.mp3',
+  waveformConfig: WaveformVisualizationConfig(
+    style: WaveformStyle(
+      primaryColor: Colors.blue,
+      lineWidth: 2.0,
+      useGradient: true,
+    ),
+    height: 120,
+    showPosition: true,
+    interactive: true,
+  ),
+  controlsConfig: AudioPlayerControlsConfig(
+    showPlayPause: true,
+    showProgress: true,
+    showTimeLabels: true,
+    controlsPosition: ControlsPosition.bottom,
+  ),
+  callbacks: AudioPlayerCallbacks(
+    onStateChanged: (state) => print('State: $state'),
+    onPositionChanged: (pos) => print('Position: $pos'),
+  ),
+)
+```
+
+#### Fake Waveform Audio Player
+
+Uses generated waveform patterns for quick loading and consistent visuals:
+
+```dart
+FakeWaveformAudioPlayer(
+  audioPath: 'path/to/audio.mp3',
+  waveformPattern: WaveformPattern.music,
+  waveformConfig: WaveformVisualizationConfig(
+    style: WaveformStyle(
+      primaryColor: Colors.green,
+      lineWidth: 1.5,
+    ),
+    height: 80,
+    interactive: true,
+  ),
+  controlsConfig: AudioPlayerControlsConfig(
+    buttonSize: 40,
+    colors: AudioPlayerColors(
+      playButtonColor: Colors.green,
+      playIconColor: Colors.white,
+    ),
+  ),
+)
+```
+
+#### Features
+
+- **Interactive Waveform**: Tap to seek to any position
+- **Customizable Controls**: Play/pause, volume, progress, time labels
+- **Flexible Layouts**: Controls can be positioned top, bottom, overlay, left, or right
+- **Real-time Progress**: Visual progress overlay on waveform
+- **Event Callbacks**: State changes, position updates, seeking, errors
+- **Memory Efficient**: Optimized rendering for smooth performance
+
+📖 **[Complete Audio Player Guide](AUDIO_PLAYER_GUIDE.md)** - Detailed documentation with examples
 
 ## 📚 API Reference
 
