@@ -30,8 +30,11 @@ A comprehensive Flutter plugin for native audio processing that provides convers
 | macOS    | ✅ | ✅ | ✅ | ✅ | AVFoundation (same as iOS) |
 | Linux    | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Limited support (requires FFmpeg/GStreamer) |
 | Windows  | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Limited support (requires Media Foundation/FFmpeg) |
+| Web      | ❌ | ❌ | ✅ | ❌ | Web Audio API (limited functionality) |
 
-> **Note**: Desktop platforms (Linux, Windows) have basic plugin structure but require additional audio processing libraries like FFmpeg or platform-specific APIs for full functionality. macOS has full support using AVFoundation.
+> **Note**: 
+> - Desktop platforms (Linux, Windows) have basic plugin structure but require additional audio processing libraries like FFmpeg or platform-specific APIs for full functionality. macOS has full support using AVFoundation.
+> - Web platform provides limited support: waveform visualization works well, but audio conversion and trimming are not supported due to browser security limitations.
 
 ### Supported Audio Formats
 
@@ -44,7 +47,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_audio_toolkit: ^0.3.3
+  flutter_audio_toolkit: ^0.3.4
 ```
 
 ## 📖 Usage
@@ -454,6 +457,37 @@ FakeWaveformAudioPlayer(
 
 📖 **[Complete Audio Player Guide](AUDIO_PLAYER_GUIDE.md)** - Detailed documentation with examples
 
+## 📱 Example App
+
+This repository includes a comprehensive example app that demonstrates all features of the Flutter Audio Toolkit. The example app showcases:
+
+- Audio conversion between different formats
+- Audio trimming with visual range selection
+- Real-time waveform visualization (both true and fake)
+- Noise detection and quality analysis
+- Remote audio file handling
+- Audio playback with custom controls
+
+### Running the Example
+
+```bash
+cd example
+flutter pub get
+flutter run
+```
+
+### Example App Dependencies
+
+The example app uses additional packages for demonstration purposes:
+
+- `audioplayers: ^6.0.0` - For audio playback functionality
+- `file_picker: ^8.1.6` - For file selection UI
+- `path_provider: ^2.1.4` - For temporary file storage
+- `permission_handler: ^11.3.1` - For handling permissions
+- `provider: ^6.1.2` - For state management
+
+**Note**: These dependencies are NOT required for the main `flutter_audio_toolkit` plugin. They are only used in the example app for UI and demonstration purposes.
+
 ## 📚 API Reference
 
 ### FlutterAudioToolkit
@@ -648,6 +682,11 @@ Add these keys to `ios/Runner/Info.plist`:
 - **Output Formats**: Currently supports AAC and M4A output only
 - **Platform Versions**: Requires iOS 12.0+ and Android API 21+
 - **File Size**: Very large files (>100MB) may require additional memory optimization
+- **Web Platform Limitations**:
+  - Audio conversion and trimming are not supported (browser security restrictions)
+  - Waveform extraction returns generated fake waveforms (Web Audio API CORS limitations)
+  - File system access is restricted to HTTP URLs only
+  - Audio player widgets work normally for playback functionality
 
 ## Contributing
 

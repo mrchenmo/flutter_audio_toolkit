@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.4] - 2025-06-14
+
+### 🌐 Web Platform Support (Limited)
+- **NEW**: Added web platform support with limited functionality
+- **Waveform Extraction**: Web implementation generates realistic fake waveforms
+- **Format Support Detection**: Browser codec support checking via HTML Audio API
+- **Audio Info Extraction**: Basic metadata retrieval for web-accessible audio files
+- **Audio Player Compatibility**: Existing audio player widgets work on web
+- **Clear Error Messages**: Helpful error messages for unsupported operations
+- **Documentation**: Updated README with web platform limitations and capabilities
+
+### 🔧 Technical Improvements
+- **Modern Web APIs**: Uses `package:web` and `dart:js_interop` (no deprecated APIs)
+- **Dependency Updates**: Added `flutter_web_plugins` and `web` package dependencies
+- **Code Quality**: All web implementations pass static analysis
+- **Platform Detection**: Proper platform-specific feature availability
+
+### ⚠️ Web Platform Limitations
+- Audio conversion and trimming are not supported (browser security restrictions)
+- Waveform extraction returns generated patterns (Web Audio API CORS limitations)
+- File system access restricted to HTTP URLs only
+- Performance is limited compared to native platforms
+
 ## [0.3.3] - 2025-06-10
 -  Bug Fixes
 

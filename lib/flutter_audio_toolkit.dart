@@ -75,6 +75,12 @@ class FlutterAudioToolkit {
     return AudioService.getAudioInfo(inputPath);
   }
 
+  /// Gets basic audio file information without conversion
+  /// This is a lightweight alternative to getAudioInfo for quick metadata checks
+  Future<Map<String, dynamic>> getBasicAudioInfo(String inputPath) {
+    return AudioService.getBasicAudioInfo(inputPath);
+  }
+
   /// Trims an audio file to the specified time range
   ///
   /// [inputPath] - Path to the input audio file
@@ -340,6 +346,63 @@ class FlutterAudioToolkit {
     return NoiseDetectionService.quickNoiseCheck(
       inputPath: inputPath,
       onProgress: onProgress,
+    );
+  }
+
+  // Backward compatibility aliases
+
+  /// Analyzes an audio file for noise detection and quality assessment
+  ///
+  /// This is an alias for [analyzeNoise] for backward compatibility.
+  ///
+  /// [inputPath] - Path to the input audio file
+  /// [segmentDurationMs] - Duration of analysis segments in milliseconds (default: 5000)
+  /// [onProgress] - Optional callback for analysis progress
+  ///
+  /// Returns a comprehensive [NoiseDetectionResult] with:
+  /// - Overall noise level assessment
+  /// - Volume level analysis
+  /// - Detected background noises (traffic, dogs, etc.)
+  /// - Audio quality metrics
+  /// - Frequency analysis
+  /// - Time-based segment analysis
+  /// - Recommendations for improvement
+  Future<NoiseDetectionResult> analyzeAudioNoise({
+    required String inputPath,
+    int segmentDurationMs = 5000,
+    ProgressCallback? onProgress,
+  }) {
+    return analyzeNoise(
+      inputPath: inputPath,
+      segmentDurationMs: segmentDurationMs,
+      onProgress: onProgress,
+    );
+  }
+
+  /// Analyzes audio from a network URL for noise detection
+  ///
+  /// This is an alias for [analyzeNoiseFromUrl] for backward compatibility.
+  ///
+  /// [url] - URL of the audio file to analyze
+  /// [localPath] - Temporary local path for downloading
+  /// [segmentDurationMs] - Duration of analysis segments in milliseconds (default: 5000)
+  /// [onDownloadProgress] - Optional callback for download progress (0.0 to 0.5)
+  /// [onAnalysisProgress] - Optional callback for analysis progress (0.5 to 1.0)
+  ///
+  /// Returns a comprehensive [NoiseDetectionResult] with noise and quality analysis
+  Future<NoiseDetectionResult> analyzeAudioNoiseFromUrl({
+    required String url,
+    required String localPath,
+    int segmentDurationMs = 5000,
+    ProgressCallback? onDownloadProgress,
+    ProgressCallback? onAnalysisProgress,
+  }) {
+    return analyzeNoiseFromUrl(
+      url: url,
+      localPath: localPath,
+      segmentDurationMs: segmentDurationMs,
+      onDownloadProgress: onDownloadProgress,
+      onAnalysisProgress: onAnalysisProgress,
     );
   }
 }
