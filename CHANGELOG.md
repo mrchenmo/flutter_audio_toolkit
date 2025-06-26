@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.3.5] - 2025-06-26
+- #1 Bug Fix (Compile-time error on iOS)
+
 ## [0.3.4] - 2025-06-14
 
 ### 🌐 Web Platform Support (Limited)

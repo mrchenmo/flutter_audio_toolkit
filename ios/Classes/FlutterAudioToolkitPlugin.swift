@@ -197,10 +197,10 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         var totalDuration: CMTime = CMTime.zero
         
         // Start progress monitoring
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             let progress = Double(exportSession.progress)
             DispatchQueue.main.async {
-                self.progressEventSink?(["operation": "convert", "progress": progress])
+                self?.progressEventSink?(["operation": "convert", "progress": progress])
             }
         }
         
@@ -276,8 +276,8 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
             exportSession.outputFileType = .m4a
         }
         
-        // Configure audio settings
-        exportSession.audioSettings = [
+        // Configure audio settings using audioOutputSettings
+        exportSession.audioOutputSettings = [
             AVFormatIDKey: kAudioFormatMPEG4AAC,
             AVSampleRateKey: sampleRate,
             AVNumberOfChannelsKey: 2,
@@ -289,10 +289,10 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         var totalDuration = CMTime.zero
         
         // Monitor progress
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             let progress = Double(exportSession.progress)
             DispatchQueue.main.async {
-                self.progressEventSink?(["operation": "trim", "progress": progress])
+                self?.progressEventSink?(["operation": "trim", "progress": progress])
             }
         }
         
@@ -345,11 +345,13 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         
         // Get original format information
         let formatDescriptions = audioTrack.formatDescriptions
-        guard let formatDescription = formatDescriptions.first as? CMAudioFormatDescription else {
+        guard let formatDescription = formatDescriptions.first,
+              CFGetTypeID(formatDescription) == CMAudioFormatDescriptionGetTypeID() else {
             throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
+        let audioFormatDescription = formatDescription as CMAudioFormatDescription
         
-        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescription)
+        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDescription)
         let originalSampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
         let originalChannels = Int(audioStreamBasicDescription?.pointee.mChannelsPerFrame ?? 2)
         let formatID = audioStreamBasicDescription?.pointee.mFormatID ?? kAudioFormatMPEG4AAC
@@ -358,7 +360,7 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         let presetName: String
         switch formatID {
         case kAudioFormatMPEGLayer3:
-            presetName = AVAssetExportPresetPassthrough // Try to maintain original format
+            presetName = AVAssetExportPresetAppleM4A // Convert MP3 to M4A since iOS doesn't support MP3 export
         case kAudioFormatMPEG4AAC:
             presetName = AVAssetExportPresetAppleM4A
         default:
@@ -382,28 +384,19 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
             exportSession.outputFileType = .m4a
         }
         
-        // For lossless copy, try to use minimal processing
-        if presetName == AVAssetExportPresetPassthrough {
-            // Don't set audio settings to maintain original encoding
-        } else {
-            // Set high-quality audio settings to minimize quality loss
-            exportSession.audioSettings = [
-                AVFormatIDKey: formatID,
-                AVSampleRateKey: originalSampleRate,
-                AVNumberOfChannelsKey: originalChannels,
-                AVEncoderBitRateKey: 320000 // High bitrate for quality preservation
-            ]
-        }
+        // For M4A format, use high quality preset
+        // All formats will use M4A container with AAC encoding
+        // The preset will handle the encoding parameters automatically
         
         let semaphore = DispatchSemaphore(value: 0)
         var exportError: Error?
         var totalDuration = CMTime.zero
         
         // Monitor progress
-        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             let progress = Double(exportSession.progress)
             DispatchQueue.main.async {
-                self.progressEventSink?(["operation": "trim_lossless", "progress": progress])
+                self?.progressEventSink?(["operation": "trim_lossless", "progress": progress])
             }
         }
         
@@ -496,11 +489,13 @@ private extension FlutterAudioToolkitPlugin {
         let durationMs = Int(duration * 1000)
         
         // Get audio format description
-        guard let formatDescriptions = audioTrack.formatDescriptions.first as? CMAudioFormatDescription else {
+        guard let formatDescription = audioTrack.formatDescriptions.first,
+              CFGetTypeID(formatDescription) == CMAudioFormatDescriptionGetTypeID() else {
             throw NSError(domain: "AudioConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
+        let audioFormatDescription = formatDescription as CMAudioFormatDescription
         
-        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescriptions)
+        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDescription)
         let sampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
         let channels = Int(audioStreamBasicDescription?.pointee.mChannelsPerFrame ?? 2)
         
@@ -515,16 +510,23 @@ private extension FlutterAudioToolkitPlugin {
             guard let sampleBuffer = readerOutput.copyNextSampleBuffer() else { break }
             
             guard let dataBuffer = CMSampleBufferGetDataBuffer(sampleBuffer) else {
-                CMSampleBufferInvalidate(sampleBuffer)
+                // ARC will handle sampleBuffer cleanup automatically
                 continue
             }
             
             let length = CMBlockBufferGetDataLength(dataBuffer)
             var data = Data(count: length)
             
-            data.withUnsafeMutableBytes { bytes in
-                CMBlockBufferCopyDataBytes(dataBuffer, atOffset: 0, dataLength: length, destination: bytes.bindMemory(to: UInt8.self).baseAddress!)
+            let status = data.withUnsafeMutableBytes { bytes in
+                CMBlockBufferCopyDataBytes(
+                    dataBuffer, 
+                    atOffset: 0, 
+                    dataLength: length, 
+                    destination: bytes.bindMemory(to: UInt8.self).baseAddress!
+                )
             }
+            
+            guard status == kCMBlockBufferNoErr else { continue }
             
             // Process 16-bit PCM samples
             let sampleData = data.withUnsafeBytes { $0.bindMemory(to: Int16.self) }
@@ -548,15 +550,15 @@ private extension FlutterAudioToolkitPlugin {
                     
                     // Update progress
                     let progress = min(Double(sampleCount) / Double(totalSamples), 1.0)
-                    DispatchQueue.main.async {
-                        self.progressEventSink?(["operation": "waveform", "progress": progress])
+                    DispatchQueue.main.async { [weak self] in
+                        self?.progressEventSink?(["operation": "waveform", "progress": progress])
                     }
                     
                     if sampleCount >= totalSamples { break }
                 }
             }
             
-            CMSampleBufferInvalidate(sampleBuffer)
+            // ARC will handle sampleBuffer cleanup automatically
         }
         
         // Add any remaining batch
@@ -565,6 +567,11 @@ private extension FlutterAudioToolkitPlugin {
         }
         
         reader.cancelReading()
+        
+        // Final progress update
+        DispatchQueue.main.async { [weak self] in
+            self?.progressEventSink?(["operation": "waveform", "progress": 1.0])
+        }
         
         return [
             "amplitudes": amplitudes,
@@ -624,11 +631,13 @@ private extension FlutterAudioToolkitPlugin {
         let durationMs = Int(duration * 1000)
         
         // Get format description
-        guard let formatDescriptions = audioTrack.formatDescriptions.first as? CMAudioFormatDescription else {
+        guard let formatDescription = audioTrack.formatDescriptions.first,
+              CFGetTypeID(formatDescription) == CMAudioFormatDescriptionGetTypeID() else {
             throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
+        let audioFormatDescription = formatDescription as CMAudioFormatDescription
         
-        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(formatDescriptions)
+        let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDescription)
         let sampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
         let channels = Int(audioStreamBasicDescription?.pointee.mChannelsPerFrame ?? 2)
         let formatID = audioStreamBasicDescription?.pointee.mFormatID ?? kAudioFormatMPEG4AAC
@@ -669,8 +678,10 @@ private extension FlutterAudioToolkitPlugin {
         // Track information
         let foundTracks = audioTracks.enumerated().map { index, track in
             let trackFormatDescriptions = track.formatDescriptions
-            if let trackFormatDescription = trackFormatDescriptions.first as? CMAudioFormatDescription {
-                let trackBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(trackFormatDescription)
+            if let trackFormatDescription = trackFormatDescriptions.first,
+               CFGetTypeID(trackFormatDescription) == CMAudioFormatDescriptionGetTypeID() {
+                let audioFormatDesc = trackFormatDescription as CMAudioFormatDescription
+                let trackBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDesc)
                 let trackFormatID = trackBasicDescription?.pointee.mFormatID ?? 0
                 return "Track \(index): \(fourCharCodeToString(trackFormatID))"
             }
@@ -699,13 +710,22 @@ private extension FlutterAudioToolkitPlugin {
     func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
         
-        try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
-        try audioSession.setActive(true)
+        do {
+            try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+            try audioSession.setActive(true)
+        } catch {
+            // If audio session configuration fails, try with a simpler configuration
+            try audioSession.setCategory(.playback, mode: .default)
+            try audioSession.setActive(true)
+        }
     }
     
     /// Helper function to convert FourCharCode to String
     func fourCharCodeToString(_ code: FourCharCode) -> String {
         let bytes = withUnsafeBytes(of: code.bigEndian) { Data($0) }
-        return String(data: bytes, encoding: .ascii) ?? "Unknown"
+        if let string = String(data: bytes, encoding: .ascii), !string.isEmpty {
+            return string.trimmingCharacters(in: .controlCharacters)
+        }
+        return String(format: "0x%08X", code)
     }
 }
