@@ -7,13 +7,7 @@ A comprehensive Flutter plugin for native audio processing that provides convers
 - **🔄 Audio Conversion**: Convert audio files between formats (MP3, WAV, OGG → AAC, M4A)
 - **✂️ Audio Trimming**: Precise audio trimming with lossless and lossy options
 - **📊 Waveform Extraction**: Extract amplitude data for visual waveform displays
-- **🎨 Enhanced Waveform Generation**: 25+ realistic waveform patterns with visual styling
-- **🎵 Audio Player with True Waveform**: Interactive audio player with real waveform visualization
-- **🎧 Audio Player with Fake Waveform**: Quick-loading audio player with generated waveforms
-- **🎮 Customizable Player Controls**: Play/pause, volume, seeking, time labels with flexible layouts
-- **🔊 Noise Detection & Analysis**: Comprehensive audio quality analysis and noise identification
-- **📈 Audio Quality Metrics**: Peak levels, SNR, dynamic range, frequency analysis
-- **🎵 Background Noise Identification**: Detect car horns, dog barking, music, speech, and more
+- **🎨 Fake Waveform Generation**: Generate realistic waveform patterns for testing and previews
 - **🌐 Network Audio Processing**: Download and process audio files from URLs
 - **📋 Audio Analysis**: Comprehensive audio file information and metadata
 - **⚡ Native Performance**: Uses platform-optimized native libraries (MediaCodec, AVFoundation)
@@ -27,14 +21,6 @@ A comprehensive Flutter plugin for native audio processing that provides convers
 |----------|-----------------|----------------|-------------------|-------------------|----------------|
 | Android  | ✅ | ✅ | ✅ | ✅ | MediaCodec, MediaMuxer, MediaExtractor |
 | iOS      | ✅ | ✅ | ✅ | ✅ | AVAudioConverter, AVAssetExportSession, AVAssetReader |
-| macOS    | ✅ | ✅ | ✅ | ✅ | AVFoundation (same as iOS) |
-| Linux    | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Limited support (requires FFmpeg/GStreamer) |
-| Windows  | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Limited support (requires Media Foundation/FFmpeg) |
-| Web      | ❌ | ❌ | ✅ | ❌ | Web Audio API (limited functionality) |
-
-> **Note**: 
-> - Desktop platforms (Linux, Windows) have basic plugin structure but require additional audio processing libraries like FFmpeg or platform-specific APIs for full functionality. macOS has full support using AVFoundation.
-> - Web platform provides limited support: waveform visualization works well, but audio conversion and trimming are not supported due to browser security limitations.
 
 ### Supported Audio Formats
 
@@ -47,7 +33,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_audio_toolkit: ^0.3.5
+  flutter_audio_toolkit: ^0.0.1
 ```
 
 ## 📖 Usage
@@ -236,139 +222,11 @@ final networkWaveform = await audioToolkit.extractWaveformFromUrl(
 // Generate consistent fake waveform for a URL (useful for previews)
 final fakeUrlWaveform = audioToolkit.generateFakeWaveformForUrl(
   url: 'https://example.com/audio.mp3',
-  pattern: WaveformPattern.music,  estimatedDurationMs: 180000, // 3 minutes estimated
+  pattern: WaveformPattern.music,
+  estimatedDurationMs: 180000, // 3 minutes estimated
   samplesPerSecond: 100,
 );
 ```
-
-### 🔊 Noise Detection & Audio Quality Analysis
-
-**New in v0.3.0!** Comprehensive noise detection and audio quality analysis to identify background noises, audio issues, and provide detailed quality metrics:
-
-```dart
-// Analyze audio for noise and quality metrics
-final analysisResult = await audioToolkit.analyzeAudioNoise(
-  inputPath: '/path/to/audio.mp3',
-  onProgress: (progress) {
-    print('Analysis progress: ${(progress * 100).toStringAsFixed(1)}%');
-  },
-);
-
-// Access quality metrics
-final quality = analysisResult.qualityMetrics;
-if (quality != null) {
-  print('Quality Grade: ${quality.grade.description}');     // Excellent, Good, Fair, Poor, Very Poor
-  print('Peak Level: ${quality.peakLevelFormatted}');       // e.g., "-3.2 dBFS"
-  print('Average Level: ${quality.averageLevelFormatted}'); // e.g., "-18.5 dBFS"
-  print('SNR: ${quality.snrFormatted}');                    // Signal-to-noise ratio
-  print('Loudness: ${quality.lufsFormatted}');              // LUFS measurement
-  print('Dynamic Range: ${quality.dynamicRange.toStringAsFixed(1)} dB');
-  print('Overall Score: ${(quality.overallScore * 100).toStringAsFixed(1)}%');
-  
-  // Check for specific issues
-  if (quality.hasClipping) print('⚠️ Audio clipping detected');
-  if (quality.hasDistortion) print('⚠️ Distortion present');
-  if (quality.hasBalanceIssues) print('⚠️ Stereo balance issues');
-}
-
-// Check detected background noises
-for (final noise in analysisResult.detectedNoises) {
-  print('🔊 Detected: ${noise.type.displayName}');
-  print('   Confidence: ${(noise.confidence * 100).toStringAsFixed(1)}%');
-  print('   Description: ${noise.description}');
-  
-  // Time segments where noise was found
-  for (final segment in noise.timeSegments) {
-    print('   Found at: ${segment.startTimeFormatted} - ${segment.endTimeFormatted}');
-    print('   Intensity: ${(segment.intensity * 100).toStringAsFixed(1)}%');
-  }
-}
-
-// Frequency analysis
-final freqAnalysis = analysisResult.frequencyAnalysis;
-if (freqAnalysis != null) {
-  print('🎵 Frequency Distribution: ${freqAnalysis.frequencyDistribution}');
-  print('🎵 Dominant Frequency: ${freqAnalysis.dominantFrequency.toStringAsFixed(1)} Hz');
-  print('🎵 Tonal Characteristics: ${freqAnalysis.tonalCharacteristics.join(', ')}');
-}
-```
-
-#### Supported Noise Types
-
-The noise detection system can identify 15+ different types of background noise:
-
-| Noise Type | Description | Common Sources |
-|------------|-------------|----------------|
-| **Traffic** | Vehicle sounds, road noise | Cars, trucks, motorcycles |
-| **Construction** | Building/demolition sounds | Hammering, drilling, machinery |
-| **Nature** | Natural environmental sounds | Wind, rain, thunder |
-| **Animals** | Animal vocalizations | Dogs barking, cats, birds |
-| **Music** | Background musical content | Radio, speakers, instruments |
-| **Speech** | Human conversation | Talking, crowd chatter |
-| **Machinery** | Mechanical/electrical noise | Fans, AC units, appliances |
-| **Electronic** | Digital/electrical interference | Hum, buzz, static |
-| **Wind** | Wind noise on microphone | Outdoor recording issues |
-| **Aircraft** | Airplane/helicopter sounds | Aviation noise |
-| **Emergency** | Sirens and alarms | Police, fire, ambulance |
-| **Urban** | General city noise | Traffic, crowds, activity |
-| **Household** | Domestic sounds | TV, appliances, movement |
-| **Industrial** | Factory/workshop noise | Heavy machinery, tools |
-| **Water** | Water-related sounds | Rain, streams, dripping |
-
-```dart
-// Analyze network audio file
-final networkAnalysis = await audioToolkit.analyzeAudioNoiseFromUrl(
-  url: 'https://example.com/audio.mp3',
-  localPath: '/tmp/analysis_audio.mp3',
-  onProgress: (progress) {
-    print('Download & Analysis: ${(progress * 100).toStringAsFixed(1)}%');
-  },
-);
-```
-
-### 🎨 Enhanced Waveform Generation
-
-**Enhanced in v0.3.0!** Generate 25+ realistic waveform patterns with visual styling options:
-
-```dart
-// Generate waveforms with automatic styling
-final themedWaveform = audioToolkit.generateThemedWaveform(
-  pattern: WaveformPattern.jazz,
-  durationMs: 30000,
-);
-
-// Generate waveforms with custom styling
-final styledWaveform = audioToolkit.generateStyledWaveform(
-  pattern: WaveformPattern.electronic,
-  style: WaveformColorSchemes.neon,
-  durationMs: 25000,
-);
-
-// Apply styling to existing waveform
-final waveformWithStyle = existingWaveform.withStyle(WaveformColorSchemes.fire);
-```
-
-#### Available Waveform Patterns
-
-**Basic Waveforms**: `sine`, `square`, `sawtooth`, `triangle`, `random`, `pulse`, `fade`, `burst`
-
-**Musical Patterns**: `music`, `electronic`, `classical`, `rock`, `jazz`, `ambient`
-
-**Voice & Speech**: `speech`, `podcast`, `audiobook`
-
-**Nature & Relaxation**: `whiteNoise`, `pinkNoise`, `heartbeat`, `ocean`, `rain`, `binauralBeats`
-
-#### Predefined Color Schemes
-
-- `WaveformColorSchemes.classic` - Classic blue waveform
-- `WaveformColorSchemes.fire` - Fire/heat color scheme
-- `WaveformColorSchemes.ocean` - Ocean/water colors
-- `WaveformColorSchemes.forest` - Forest/nature colors
-- `WaveformColorSchemes.neon` - Neon/cyberpunk style
-- `WaveformColorSchemes.monochrome` - Grayscale
-- `WaveformColorSchemes.sunset` - Sunset colors
-- `WaveformColorSchemes.professional` - Professional/business
-- `WaveformColorSchemes.visualizer` - Music visualizer style
 
 ### 🔍 Format Validation
 
@@ -385,108 +243,6 @@ if (isSupported) {
   print('❌ Unsupported format. Please use MP3, M4A, AAC, WAV, or OGG files');
 }
 ```
-
-### 🎵 Audio Player Widgets
-
-**New in v0.3.0!** Interactive audio players with customizable waveform visualization:
-
-#### True Waveform Audio Player
-
-Uses extracted waveform data from actual audio files for accurate visualization:
-
-```dart
-TrueWaveformAudioPlayer(
-  audioPath: 'path/to/audio.mp3',
-  waveformConfig: WaveformVisualizationConfig(
-    style: WaveformStyle(
-      primaryColor: Colors.blue,
-      lineWidth: 2.0,
-      useGradient: true,
-    ),
-    height: 120,
-    showPosition: true,
-    interactive: true,
-  ),
-  controlsConfig: AudioPlayerControlsConfig(
-    showPlayPause: true,
-    showProgress: true,
-    showTimeLabels: true,
-    controlsPosition: ControlsPosition.bottom,
-  ),
-  callbacks: AudioPlayerCallbacks(
-    onStateChanged: (state) => print('State: $state'),
-    onPositionChanged: (pos) => print('Position: $pos'),
-  ),
-)
-```
-
-#### Fake Waveform Audio Player
-
-Uses generated waveform patterns for quick loading and consistent visuals:
-
-```dart
-FakeWaveformAudioPlayer(
-  audioPath: 'path/to/audio.mp3',
-  waveformPattern: WaveformPattern.music,
-  waveformConfig: WaveformVisualizationConfig(
-    style: WaveformStyle(
-      primaryColor: Colors.green,
-      lineWidth: 1.5,
-    ),
-    height: 80,
-    interactive: true,
-  ),
-  controlsConfig: AudioPlayerControlsConfig(
-    buttonSize: 40,
-    colors: AudioPlayerColors(
-      playButtonColor: Colors.green,
-      playIconColor: Colors.white,
-    ),
-  ),
-)
-```
-
-#### Features
-
-- **Interactive Waveform**: Tap to seek to any position
-- **Customizable Controls**: Play/pause, volume, progress, time labels
-- **Flexible Layouts**: Controls can be positioned top, bottom, overlay, left, or right
-- **Real-time Progress**: Visual progress overlay on waveform
-- **Event Callbacks**: State changes, position updates, seeking, errors
-- **Memory Efficient**: Optimized rendering for smooth performance
-
-📖 **[Complete Audio Player Guide](AUDIO_PLAYER_GUIDE.md)** - Detailed documentation with examples
-
-## 📱 Example App
-
-This repository includes a comprehensive example app that demonstrates all features of the Flutter Audio Toolkit. The example app showcases:
-
-- Audio conversion between different formats
-- Audio trimming with visual range selection
-- Real-time waveform visualization (both true and fake)
-- Noise detection and quality analysis
-- Remote audio file handling
-- Audio playback with custom controls
-
-### Running the Example
-
-```bash
-cd example
-flutter pub get
-flutter run
-```
-
-### Example App Dependencies
-
-The example app uses additional packages for demonstration purposes:
-
-- `audioplayers: ^6.0.0` - For audio playback functionality
-- `file_picker: ^8.1.6` - For file selection UI
-- `path_provider: ^2.1.4` - For temporary file storage
-- `permission_handler: ^11.3.1` - For handling permissions
-- `provider: ^6.1.2` - For state management
-
-**Note**: These dependencies are NOT required for the main `flutter_audio_toolkit` plugin. They are only used in the example app for UI and demonstration purposes.
 
 ## 📚 API Reference
 
@@ -682,11 +438,6 @@ Add these keys to `ios/Runner/Info.plist`:
 - **Output Formats**: Currently supports AAC and M4A output only
 - **Platform Versions**: Requires iOS 12.0+ and Android API 21+
 - **File Size**: Very large files (>100MB) may require additional memory optimization
-- **Web Platform Limitations**:
-  - Audio conversion and trimming are not supported (browser security restrictions)
-  - Waveform extraction returns generated fake waveforms (Web Audio API CORS limitations)
-  - File system access is restricted to HTTP URLs only
-  - Audio player widgets work normally for playback functionality
 
 ## Contributing
 

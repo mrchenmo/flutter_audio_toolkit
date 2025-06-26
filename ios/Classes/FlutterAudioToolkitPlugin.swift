@@ -182,15 +182,11 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         exportSession.outputURL = outputURL
         exportSession.outputFileType = format == "aac" ? .m4a : .m4a
         
-        // Configure audio settings
-        let audioSettings: [String: Any] = [
-            AVFormatIDKey: kAudioFormatMPEG4AAC,
-            AVSampleRateKey: sampleRate,
-            AVNumberOfChannelsKey: 2,
-            AVEncoderBitRateKey: bitRate
-        ]
-        
-        exportSession.audioOutputSettings = audioSettings
+        // Note: AVAssetExportSession does not support custom audio settings
+        // The AVAssetExportPresetAppleM4A preset will handle the encoding with:
+        // - AAC codec (MPEG-4 Audio)
+        // - Appropriate bit rate for quality
+        // - Maintains original sample rate and channels when possible
         
         let semaphore = DispatchSemaphore(value: 0)
         var exportError: Error?
@@ -203,6 +199,7 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
                 self?.progressEventSink?(["operation": "convert", "progress": progress])
             }
         }
+        RunLoop.current.add(timer, forMode: .common)
         
         exportSession.exportAsynchronously {
             timer.invalidate()
@@ -258,7 +255,8 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         
         let startTime = CMTime(seconds: Double(startTimeMs) / 1000.0, preferredTimescale: 600)
         let endTime = CMTime(seconds: Double(endTimeMs) / 1000.0, preferredTimescale: 600)
-        let timeRange = CMTimeRange(start: startTime, end: endTime)
+        let duration = CMTimeSubtract(endTime, startTime)
+        let timeRange = CMTimeRangeMake(start: startTime, duration: duration)
         
         try compositionAudioTrack?.insertTimeRange(timeRange, of: audioTrack, at: .zero)
         
@@ -276,13 +274,10 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
             exportSession.outputFileType = .m4a
         }
         
-        // Configure audio settings using audioOutputSettings
-        exportSession.audioOutputSettings = [
-            AVFormatIDKey: kAudioFormatMPEG4AAC,
-            AVSampleRateKey: sampleRate,
-            AVNumberOfChannelsKey: 2,
-            AVEncoderBitRateKey: bitRate
-        ]
+        // Note: AVAssetExportSession presets manage audio encoding automatically
+        // The AVAssetExportPresetAppleM4A preset provides high-quality AAC encoding
+        // Custom audio settings are not available with AVAssetExportSession
+        // For custom encoding parameters, use AVAssetWriter instead
         
         let semaphore = DispatchSemaphore(value: 0)
         var exportError: Error?
@@ -295,6 +290,7 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
                 self?.progressEventSink?(["operation": "trim", "progress": progress])
             }
         }
+        RunLoop.current.add(timer, forMode: .common)
         
         exportSession.exportAsynchronously {
             timer.invalidate()
@@ -339,14 +335,15 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         
         let startTime = CMTime(seconds: Double(startTimeMs) / 1000.0, preferredTimescale: 600)
         let endTime = CMTime(seconds: Double(endTimeMs) / 1000.0, preferredTimescale: 600)
-        let timeRange = CMTimeRange(start: startTime, end: endTime)
+        let duration = CMTimeSubtract(endTime, startTime)
+        let timeRange = CMTimeRangeMake(start: startTime, duration: duration)
         
         try compositionAudioTrack?.insertTimeRange(timeRange, of: audioTrack, at: .zero)
         
         // Get original format information
         let formatDescriptions = audioTrack.formatDescriptions
         guard let formatDescription = formatDescriptions.first,
-              CFGetTypeID(formatDescription) == CMAudioFormatDescriptionGetTypeID() else {
+              CMFormatDescriptionGetMediaType(formatDescription) == kCMMediaType_Audio else {
             throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
         let audioFormatDescription = formatDescription as CMAudioFormatDescription
@@ -399,6 +396,7 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
                 self?.progressEventSink?(["operation": "trim_lossless", "progress": progress])
             }
         }
+        RunLoop.current.add(timer, forMode: .common)
         
         exportSession.exportAsynchronously {
             timer.invalidate()
@@ -490,7 +488,7 @@ private extension FlutterAudioToolkitPlugin {
         
         // Get audio format description
         guard let formatDescription = audioTrack.formatDescriptions.first,
-              CFGetTypeID(formatDescription) == CMAudioFormatDescriptionGetTypeID() else {
+              CMFormatDescriptionGetMediaType(formatDescription) == kCMMediaType_Audio else {
             throw NSError(domain: "AudioConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
         let audioFormatDescription = formatDescription as CMAudioFormatDescription
@@ -632,7 +630,7 @@ private extension FlutterAudioToolkitPlugin {
         
         // Get format description
         guard let formatDescription = audioTrack.formatDescriptions.first,
-              CFGetTypeID(formatDescription) == CMAudioFormatDescriptionGetTypeID() else {
+              CMFormatDescriptionGetMediaType(formatDescription) == kCMMediaType_Audio else {
             throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
         let audioFormatDescription = formatDescription as CMAudioFormatDescription
@@ -679,7 +677,7 @@ private extension FlutterAudioToolkitPlugin {
         let foundTracks = audioTracks.enumerated().map { index, track in
             let trackFormatDescriptions = track.formatDescriptions
             if let trackFormatDescription = trackFormatDescriptions.first,
-               CFGetTypeID(trackFormatDescription) == CMAudioFormatDescriptionGetTypeID() {
+               CMFormatDescriptionGetMediaType(trackFormatDescription) == kCMMediaType_Audio {
                 let audioFormatDesc = trackFormatDescription as CMAudioFormatDescription
                 let trackBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDesc)
                 let trackFormatID = trackBasicDescription?.pointee.mFormatID ?? 0
