@@ -1,3 +1,4 @@
+import CoreMedia
 import Flutter
 import UIKit
 import AVFoundation
@@ -343,10 +344,10 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
         // Get original format information
         let formatDescriptions = audioTrack.formatDescriptions
         guard let formatDescription = formatDescriptions.first,
-              CMFormatDescriptionGetMediaType(formatDescription) == kCMMediaType_Audio else {
+              CMFormatDescriptionGetMediaType(formatDescription as! CMFormatDescription) == kCMMediaType_Audio else {
             throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
-        let audioFormatDescription = formatDescription as CMAudioFormatDescription
+        let audioFormatDescription = formatDescription as! CMAudioFormatDescription
         
         let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDescription)
         let originalSampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
@@ -486,10 +487,10 @@ private extension FlutterAudioToolkitPlugin {
         
         // Get audio format description
         guard let formatDescription = audioTrack.formatDescriptions.first,
-              CMFormatDescriptionGetMediaType(formatDescription) == kCMMediaType_Audio else {
+              CMFormatDescriptionGetMediaType(formatDescription as! CMFormatDescription) == kCMMediaType_Audio else {
             throw NSError(domain: "AudioConverter", code: 3, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
-        let audioFormatDescription = formatDescription as CMAudioFormatDescription
+        let audioFormatDescription = formatDescription as! CMAudioFormatDescription
         
         let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDescription)
         let sampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
@@ -628,10 +629,10 @@ private extension FlutterAudioToolkitPlugin {
         
         // Get format description
         guard let formatDescription = audioTrack.formatDescriptions.first,
-              CMFormatDescriptionGetMediaType(formatDescription) == kCMMediaType_Audio else {
+              CMFormatDescriptionGetMediaType(formatDescription as! CMFormatDescription) == kCMMediaType_Audio else {
             throw NSError(domain: "AudioConverter", code: 1, userInfo: [NSLocalizedDescriptionKey: "Cannot get audio format description"])
         }
-        let audioFormatDescription = formatDescription as CMAudioFormatDescription
+        let audioFormatDescription = formatDescription as! CMAudioFormatDescription
         
         let audioStreamBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDescription)
         let sampleRate = Int(audioStreamBasicDescription?.pointee.mSampleRate ?? 44100)
@@ -675,8 +676,8 @@ private extension FlutterAudioToolkitPlugin {
         let foundTracks = audioTracks.enumerated().map { index, track in
             let trackFormatDescriptions = track.formatDescriptions
             if let trackFormatDescription = trackFormatDescriptions.first,
-               CMFormatDescriptionGetMediaType(trackFormatDescription) == kCMMediaType_Audio {
-                let audioFormatDesc = trackFormatDescription as CMAudioFormatDescription
+               CMFormatDescriptionGetMediaType(trackFormatDescription as! CMFormatDescription) == kCMMediaType_Audio {
+                let audioFormatDesc = trackFormatDescription as! CMAudioFormatDescription
                 let trackBasicDescription = CMAudioFormatDescriptionGetStreamBasicDescription(audioFormatDesc)
                 let trackFormatID = trackBasicDescription?.pointee.mFormatID ?? 0
                 return "Track \(index): \(fourCharCodeToString(trackFormatID))"
