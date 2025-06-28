@@ -432,8 +432,6 @@ public class FlutterAudioToolkitPlugin: NSObject, FlutterPlugin {
             "sampleRate": originalSampleRate
         ]
     }
-
-    // ...existing code...
 }
 
 extension FlutterAudioToolkitPlugin: FlutterStreamHandler {
