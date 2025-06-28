@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.3.7] - 2025-06-28
+- iOS Build Errors Fixed
+
 ## [0.3.6] - 2025-06-26
 
 ### 🍎 iOS Swift Implementation Modernization
