@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import '../models/audio_player_config.dart';
 import '../models/audio_player_state.dart';
@@ -27,6 +26,7 @@ class AudioPlayerService {
   Timer? _positionTimer;
 
   /// Whether this player is disposed
+  bool get isDisposed => _isDisposed;
   bool _isDisposed = false;
 
   AudioPlayerService._({required this.playerId, required this.stateManager}) {
@@ -39,9 +39,6 @@ class AudioPlayerService {
   void _setupAudioPlayerListeners() {
     // Note: This is a mock implementation for demo purposes
     // The real implementation would set up native audio player listeners
-    debugPrint(
-      'Setting up audio player listeners for mock implementation: $playerId',
-    );
   }
 
   /// Creates a new audio player instance
@@ -88,9 +85,13 @@ class AudioPlayerService {
 
   /// Loads an audio file for playback
   Future<void> loadAudio(String audioPath) async {
-    if (_isDisposed) throw StateError('Player has been disposed');
+    if (_isDisposed) {
+      final error = 'AudioPlayer has been disposed - cannot load audio';
 
-    debugPrint('AudioPlayerService: Loading audio file: $audioPath');
+      stateManager.setError(error);
+      throw StateError(error);
+    }
+
     try {
       stateManager.updateState(AudioPlayerState.loading);
       stateManager.clearError();
@@ -98,14 +99,13 @@ class AudioPlayerService {
       // Check if it's a URL or local file
       bool isUrl =
           audioPath.startsWith('http://') || audioPath.startsWith('https://');
-      debugPrint('AudioPlayerService: Is URL: $isUrl');
 
       int actualDurationMs;
 
       if (isUrl) {
         // For URLs, we need to download or at least get headers to determine duration
         // But in this example, we'll use a reasonable default
-        debugPrint('AudioPlayerService: URL detected, using default duration');
+
         actualDurationMs = 30000; // Default 30 seconds for URLs
 
         // Simulate loading delay
@@ -114,7 +114,9 @@ class AudioPlayerService {
         // Verify local file exists
         final file = File(audioPath);
         if (!await file.exists()) {
-          debugPrint('AudioPlayerService: File not found: $audioPath');
+          final error = 'Audio file not found: $audioPath';
+
+          stateManager.setError(error);
           throw FileSystemException('Audio file not found', audioPath);
         }
 
@@ -126,36 +128,31 @@ class AudioPlayerService {
           final audioInfo = await AudioService.getAudioInfo(audioPath);
           actualDurationMs =
               audioInfo['durationMs'] ?? audioInfo['duration'] ?? 30000;
-          debugPrint(
-            'AudioPlayerService: Got actual audio duration from metadata: ${actualDurationMs}ms',
-          );
         } catch (e) {
-          debugPrint(
-            'AudioPlayerService: Failed to get audio duration from metadata: $e, using file size estimate',
-          );
           // Fallback to file size estimate with a more reasonable range
           final fileStat = await file.stat();
           actualDurationMs =
               (fileStat.size / 1000)
                   .clamp(10000, 3600000)
                   .toInt(); // 10s to 60min based on file size
-          debugPrint(
-            'AudioPlayerService: Estimated duration from file size: ${actualDurationMs}ms',
-          );
         }
+      }
+
+      // Check again if disposed during async operations
+      if (_isDisposed) {
+        final error = 'AudioPlayer was disposed during loading';
+
+        stateManager.setError(error);
+        throw StateError(error);
       }
 
       stateManager.updateDuration(Duration(milliseconds: actualDurationMs));
       stateManager.setAudioPath(audioPath);
       stateManager.updateState(AudioPlayerState.stopped);
-
-      debugPrint(
-        'AudioPlayerService: Audio loaded: $audioPath (duration: ${actualDurationMs}ms)',
-      );
-    } catch (e, stackTrace) {
-      debugPrint('AudioPlayerService: Failed to load audio: $e');
-      debugPrint('AudioPlayerService: Stack trace: $stackTrace');
-      stateManager.setError('Failed to load audio: $e');
+    } catch (e) {
+      if (!_isDisposed) {
+        stateManager.setError('Failed to load audio: $e');
+      }
       rethrow;
     }
   }
@@ -175,7 +172,6 @@ class AudioPlayerService {
     } catch (e) {
       // If waveform extraction fails, continue with audio loading
       // but log the error
-      debugPrint('Warning: Failed to extract waveform data: $e');
     }
   }
 
@@ -185,25 +181,11 @@ class AudioPlayerService {
     WaveformPattern pattern = WaveformPattern.music,
     int samplesPerSecond = 100,
   }) async {
-    debugPrint(
-      'AudioPlayerService: Loading audio with fake waveform: $audioPath',
-    );
-
     try {
       await loadAudio(audioPath);
 
-      debugPrint(
-        'AudioPlayerService: Audio loaded, generating fake waveform with pattern: ${pattern.name}',
-      );
-      debugPrint(
-        'AudioPlayerService: Duration for waveform: ${stateManager.duration.inMilliseconds}ms',
-      );
-
       // Check if duration is valid
       if (stateManager.duration.inMilliseconds <= 0) {
-        debugPrint(
-          'AudioPlayerService: Invalid duration: ${stateManager.duration.inMilliseconds}ms. Using default 30 seconds.',
-        );
         stateManager.updateDuration(const Duration(seconds: 30));
       }
 
@@ -214,15 +196,8 @@ class AudioPlayerService {
         samplesPerSecond: samplesPerSecond,
       );
 
-      debugPrint(
-        'AudioPlayerService: Generated fake waveform with ${fakeWaveform.amplitudes.length} samples',
-      );
-
       stateManager.setWaveformData(fakeWaveform);
-      debugPrint('AudioPlayerService: Waveform data set successfully');
-    } catch (e, stackTrace) {
-      debugPrint('AudioPlayerService: Failed to generate fake waveform: $e');
-      debugPrint('AudioPlayerService: Stack trace: $stackTrace');
+    } catch (e) {
       // Create a simple default waveform as fallback
       try {
         final defaultWaveform = WaveformGenerator.generateFakeWaveform(
@@ -231,11 +206,8 @@ class AudioPlayerService {
           samplesPerSecond: samplesPerSecond,
         );
         stateManager.setWaveformData(defaultWaveform);
-        debugPrint('AudioPlayerService: Set default fallback waveform');
       } catch (e2) {
-        debugPrint(
-          'AudioPlayerService: Even fallback waveform generation failed: $e2',
-        );
+        // Even fallback generation failed - continue without waveform
       }
     }
   }
@@ -248,7 +220,6 @@ class AudioPlayerService {
       // Mock implementation - simulate play
       stateManager.updateState(AudioPlayerState.playing);
       _startPositionTimer();
-      debugPrint('Mock audio playback started for player: $playerId');
     } catch (e) {
       stateManager.setError('Failed to play audio: $e');
       rethrow;
@@ -263,7 +234,6 @@ class AudioPlayerService {
       // Mock implementation - simulate pause
       stateManager.updateState(AudioPlayerState.paused);
       _stopPositionTimer();
-      debugPrint('Mock audio playback paused for player: $playerId');
     } catch (e) {
       stateManager.setError('Failed to pause audio: $e');
       rethrow;
@@ -279,7 +249,6 @@ class AudioPlayerService {
       stateManager.updateState(AudioPlayerState.stopped);
       _stopPositionTimer();
       stateManager.updatePosition(Duration.zero);
-      debugPrint('Mock audio playback stopped for player: $playerId');
     } catch (e) {
       stateManager.setError('Failed to stop audio: $e');
       rethrow;
@@ -299,9 +268,6 @@ class AudioPlayerService {
         ),
       );
       stateManager.updatePosition(clampedPosition);
-      debugPrint(
-        'Mock seek to position: ${clampedPosition.inSeconds}s for player: $playerId',
-      );
     } catch (e) {
       stateManager.setError('Failed to seek: $e');
       rethrow;
@@ -317,7 +283,6 @@ class AudioPlayerService {
     try {
       // Mock implementation - simulate volume change
       stateManager.updateVolume(volume);
-      debugPrint('Mock volume set to: $volume for player: $playerId');
     } catch (e) {
       stateManager.setError('Failed to set volume: $e');
       rethrow;
@@ -333,7 +298,6 @@ class AudioPlayerService {
     try {
       // Mock implementation - simulate playback speed change
       stateManager.setPlaybackSpeed(speed);
-      debugPrint('Mock playback speed set to: $speed for player: $playerId');
     } catch (e) {
       stateManager.setError('Failed to set playback speed: $e');
       rethrow;
@@ -342,23 +306,16 @@ class AudioPlayerService {
 
   /// Toggles between play and pause
   Future<void> togglePlayPause() async {
-    debugPrint(
-      'AudioPlayerService: togglePlayPause called. Current state: ${stateManager.state}',
-    );
-
     if (stateManager.isPlaying) {
-      debugPrint('AudioPlayerService: Currently playing, will pause');
       await pause();
     } else {
-      debugPrint('AudioPlayerService: Currently not playing, will play');
       // If we're in error state, try to reload the audio first
       if (stateManager.hasError) {
-        debugPrint('AudioPlayerService: Recovering from error state');
         if (stateManager.audioPath != null) {
           try {
             await loadAudio(stateManager.audioPath!);
           } catch (e) {
-            debugPrint('AudioPlayerService: Failed to reload audio: $e');
+            // Ignore reload errors during recovery
           }
         }
       }
@@ -416,7 +373,6 @@ class AudioPlayerService {
     _stopPositionTimer();
 
     // Mock implementation - no native calls needed
-    debugPrint('Mock player disposed: $playerId');
 
     _instances.remove(playerId);
     stateManager.dispose();

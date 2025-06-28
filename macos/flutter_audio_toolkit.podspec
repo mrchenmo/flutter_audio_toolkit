@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_audio_toolkit'
-  s.version          = '0.2.0'
+  s.version          = '0.3.8'
   s.summary          = 'A Flutter plugin for audio conversion, trimming, and waveform extraction using native platform APIs.'
   s.description      = <<-DESC
 Audio plugin with native support for MP3/WAV/OGG to AAC/M4A conversion, precise trimming, and waveform extraction for visualization

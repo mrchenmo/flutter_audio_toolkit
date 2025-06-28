@@ -1,6 +1,6 @@
 name: flutter_audio_toolkit
 description: "Advanced audio plugin with native support for MP3/WAV/OGG to AAC/M4A conversion, precise trimming, waveform extraction, and comprehensive noise detection & analysis"
-version: 0.3.7
+version: 0.3.8
 homepage: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit
 repository: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit
 issue_tracker: https://github.com/Rameshwar-Amancha/flutter_audio_toolkit/issues
@@ -25,6 +25,7 @@ dependencies:
   plugin_platform_interface: ^2.0.2
   http: ^1.1.0
   web: ^1.1.0
+  path_provider: ^2.1.0
 
 dev_dependencies:
   flutter_test:

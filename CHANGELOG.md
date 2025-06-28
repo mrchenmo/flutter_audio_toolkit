@@ -1,7 +1,44 @@
 # Changelog
 
+## [0.3.8] - 2025-06-28
+
+### 🔧 Critical Error Handling Improvements
+- **FIXED**: "AudioPlayer has been disposed" errors when switching between audio files or disposing widgets
+- **FIXED**: HTTP 400 and timeout errors with enhanced retry logic and user-friendly error messages
+- **FIXED**: Temp directory creation errors on read-only file systems (iOS `/tmp` issue)
+- **ENHANCED**: Cross-platform file path handling with automatic fallbacks
+
+### 🛠️ New Utilities Added
+- **PathProviderUtil**: Cross-platform path resolution with fallback mechanisms
+- **AudioErrorHandler**: User-friendly error message conversion and recovery suggestions
+- **Network Service**: Enhanced HTTP error handling with retry logic and exponential backoff
+
+### 📱 Platform Compatibility
+- **iOS**: Fixed temp file creation on read-only `/tmp` directories
+- **Android**: Improved storage permission handling and path resolution
+- **All Platforms**: Enhanced error recovery and graceful degradation
+
+### 🔄 Player State Management
+- Added disposal state checks in all player operations
+- Enhanced state change callbacks with mounted widget checks
+- Improved error propagation without breaking widget tree
+- Better memory management during rapid player creation/disposal
+
+### 📝 Documentation
+- Added comprehensive error handling guide (`ERROR_HANDLING_FIXES.md`)
+- Updated examples with proper error handling patterns
+- Enhanced inline documentation for error scenarios
+
+### ⚠️ Dependencies
+- **Added**: `path_provider: ^2.1.0` for cross-platform path resolution
+
+### 🔒 Backward Compatibility
+- All changes are backward compatible
+- Existing API unchanged, enhanced with better error handling
+- No breaking changes to public interfaces
+
 ## [0.3.7] - 2025-06-28
-- iOS Build Errors Fixed
+- Attempt to fix iOS build errors
 
 ## [0.3.6] - 2025-06-26
 

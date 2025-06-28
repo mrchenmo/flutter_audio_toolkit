@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_audio_toolkit/flutter_audio_toolkit.dart';
@@ -17,9 +16,9 @@ void main() {
       try {
         final version = await audioToolkit.getPlatformVersion();
         expect(version, contains('iOS'));
-        debugPrint('✅ Platform version: $version');
-      } on PlatformException catch (e) {
-        debugPrint('❌ Platform version test failed: ${e.message}');
+        //'✅ Platform version: $version');
+      } on PlatformException {
+        //❌ Platform version test failed: ${e.message}');
         rethrow;
       }
     });
@@ -41,9 +40,9 @@ void main() {
         expect(mp4Supported, isFalse);
         expect(unknownSupported, isFalse);
 
-        debugPrint('✅ Format support detection working correctly');
-      } on PlatformException catch (e) {
-        debugPrint('❌ Format support test failed: ${e.message}');
+        //'✅ Format support detection working correctly');
+      } on PlatformException {
+        //'❌ Format support test failed: ${e.message}');
         rethrow;
       }
     });
@@ -59,10 +58,10 @@ void main() {
         expect(audioInfo['isValid'], isFalse);
         expect(audioInfo['error'], isNotNull);
 
-        debugPrint('✅ Audio info error handling working correctly');
-        debugPrint('   Error: ${audioInfo['error']}');
-      } on PlatformException catch (e) {
-        debugPrint('❌ Audio info test failed: ${e.message}');
+        //'✅ Audio info error handling working correctly');
+        //'   Error: ${audioInfo['error']}');
+      } on PlatformException {
+        //'❌ Audio info test failed: ${e.message}');
         rethrow;
       }
     });
@@ -79,8 +78,8 @@ void main() {
         fail('Should have thrown an exception');
       } on PlatformException catch (e) {
         expect(e.code, 'INVALID_ARGUMENTS');
-        debugPrint('✅ Convert audio argument validation working correctly');
-        debugPrint('   Error: ${e.message}');
+        //'✅ Convert audio argument validation working correctly');
+        //'   Error: ${e.message}');
       }
     });
 
@@ -98,8 +97,7 @@ void main() {
         fail('Should have thrown an exception');
       } on PlatformException catch (e) {
         expect(e.code, 'INVALID_RANGE');
-        debugPrint('✅ Trim audio range validation working correctly');
-        debugPrint('   Error: ${e.message}');
+        //'   Error: ${e.message}');
       }
     });
 
@@ -114,8 +112,7 @@ void main() {
         fail('Should have thrown an exception');
       } on PlatformException catch (e) {
         expect(e.code, 'INVALID_ARGUMENTS');
-        debugPrint('✅ Extract waveform argument validation working correctly');
-        debugPrint('   Error: ${e.message}');
+        //'   Error: ${e.message}');
       }
     });
   });

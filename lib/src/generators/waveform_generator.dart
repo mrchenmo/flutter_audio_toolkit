@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_audio_toolkit/src/generators/patterns/ambient.dart';
 import 'package:flutter_audio_toolkit/src/generators/patterns/binaural_beats.dart';
 import 'package:flutter_audio_toolkit/src/generators/patterns/chill_wave.dart';
@@ -60,17 +59,7 @@ class WaveformGenerator {
     int channels = defaultChannels,
     Random? random,
   }) {
-    debugPrint(
-      'WaveformGenerator: Generating fake waveform with pattern: ${pattern.name}',
-    );
-    debugPrint(
-      'WaveformGenerator: Duration: ${durationMs}ms, Samples/sec: $samplesPerSecond',
-    );
-
     if (durationMs <= 0) {
-      debugPrint(
-        'WaveformGenerator: Warning! Invalid duration: ${durationMs}ms. Using default 30 seconds.',
-      );
       durationMs = 30000; // Ensure we have a valid duration
     }
 
@@ -78,7 +67,6 @@ class WaveformGenerator {
 
     // Calculate number of samples
     final numSamples = (durationMs * samplesPerSecond / 1000).round();
-    debugPrint('WaveformGenerator: Generating $numSamples samples');
 
     final List<double> amplitudes = [];
 
@@ -96,26 +84,12 @@ class WaveformGenerator {
           random,
         );
       } catch (e) {
-        debugPrint(
-          'WaveformGenerator: Error generating amplitude at index $i: $e',
-        );
         // Fallback to simple sine wave if pattern generation fails
         amplitude = (sin(2 * pi * frequency * t / 1000) + 1) / 2;
       }
 
       amplitudes.add(amplitude.clamp(0.0, 1.0));
-
-      // Log progress for long waveforms
-      if (numSamples > 1000 && i % (numSamples ~/ 10) == 0) {
-        debugPrint(
-          'WaveformGenerator: Generated ${i * 100 ~/ numSamples}% of waveform...',
-        );
-      }
     }
-
-    debugPrint(
-      'WaveformGenerator: Completed generating ${amplitudes.length} samples',
-    );
     return WaveformData(
       amplitudes: amplitudes,
       sampleRate: sampleRate,

@@ -71,7 +71,6 @@ class _CustomFakeWaveformPlayerState extends State<CustomFakeWaveformPlayer> {
 
   void _initializePlayer() async {
     if (widget.audioPath.isEmpty || widget.audioPath == 'demo_audio.mp3') {
-      debugPrint('No valid audio file selected for fake waveform player');
       return;
     }
 
@@ -91,10 +90,6 @@ class _CustomFakeWaveformPlayerState extends State<CustomFakeWaveformPlayer> {
       _playerService!.addDurationCallback(_onDurationChanged);
       _playerService!.addErrorCallback(_onError);
 
-      debugPrint(
-        'Loading audio file in fake waveform player: ${widget.audioPath}',
-      );
-
       // Load the actual audio file
       await _playerService!.loadAudio(widget.audioPath);
 
@@ -105,23 +100,15 @@ class _CustomFakeWaveformPlayerState extends State<CustomFakeWaveformPlayer> {
         _playerState = _playerService!.state;
       });
 
-      debugPrint(
-        'Audio loaded successfully in fake waveform player. Duration: $_duration',
-      );
-
       // Now generate a new fake waveform with the correct duration if current one doesn't match
       if (widget.waveformData == null ||
           widget.waveformData!.durationMs != _duration.inMilliseconds) {
-        debugPrint(
-          'Generating new fake waveform with duration: ${_duration.inMilliseconds}ms',
-        );
         _generateFakeWaveformForDuration(_duration.inMilliseconds);
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
-      debugPrint('Failed to load audio in fake waveform player: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
@@ -143,12 +130,8 @@ class _CustomFakeWaveformPlayerState extends State<CustomFakeWaveformPlayer> {
       setState(() {
         _localWaveformData = newWaveform;
       });
-
-      debugPrint(
-        'Generated fake waveform with actual duration: ${durationMs}ms',
-      );
     } catch (e) {
-      debugPrint('Failed to generate fake waveform: $e');
+      //Failed to generate fake waveform: $e');
     }
   }
 

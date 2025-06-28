@@ -5,6 +5,8 @@ import '../models/audio_player_state.dart';
 import '../models/waveform_pattern.dart';
 import '../core/audio_player_service.dart';
 import '../core/audio_service.dart';
+import '../utils/path_provider_util.dart';
+import '../utils/audio_error_handler.dart';
 import 'audio_player_controls.dart';
 import 'waveform_visualizer.dart';
 
@@ -96,23 +98,44 @@ class _FakeWaveformAudioPlayerState extends State<FakeWaveformAudioPlayer> {
   }
 
   /// Generates a temporary file path for network downloads
-  String _getTempPath() {
+  Future<String> _getTempPath() async {
     if (widget.tempPath != null) {
       return widget.tempPath!;
     }
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final playerId = widget.playerId ?? 'default';
-    return '/tmp/flutter_audio_toolkit_${playerId}_$timestamp.tmp';
+    try {
+      return await PathProviderUtil.createTempFilePath(
+        prefix: 'flutter_audio_toolkit',
+        suffix: '.tmp',
+        playerId: widget.playerId,
+      );
+    } catch (e) {
+      // Fallback to basic temp path
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final playerId = widget.playerId ?? 'default';
+      return '/tmp/flutter_audio_toolkit_${playerId}_$timestamp.tmp';
+    }
   }
 
   void _onPlayerStateChanged() {
-    widget.callbacks?.onStateChanged?.call(_stateManager.state);
-    widget.callbacks?.onPositionChanged?.call(_stateManager.position);
-    widget.callbacks?.onDurationChanged?.call(_stateManager.duration);
+    // Check if widget is still mounted and player is not disposed
+    if (!mounted || _playerService.isDisposed) {
+      return;
+    }
 
-    if (_stateManager.hasError && _stateManager.errorMessage != null) {
-      widget.callbacks?.onError?.call(_stateManager.errorMessage!);
+    try {
+      widget.callbacks?.onStateChanged?.call(_stateManager.state);
+      widget.callbacks?.onPositionChanged?.call(_stateManager.position);
+      widget.callbacks?.onDurationChanged?.call(_stateManager.duration);
+
+      if (_stateManager.hasError && _stateManager.errorMessage != null) {
+        final userFriendlyMessage = AudioErrorHandler.getUserFriendlyMessage(
+          _stateManager.errorMessage!,
+        );
+        widget.callbacks?.onError?.call(userFriendlyMessage);
+      }
+    } catch (e) {
+      // Don't rethrow to avoid breaking the entire widget
     }
   }
 
@@ -134,33 +157,30 @@ class _FakeWaveformAudioPlayerState extends State<FakeWaveformAudioPlayer> {
 
   /// Loads audio from a network URL
   Future<void> _loadAudioFromUrl() async {
-    var tempPath = _getTempPath();
-    debugPrint(
-      'FakeWaveformAudioPlayer: Loading audio from URL: ${widget.audioPath}',
-    );
-    debugPrint('FakeWaveformAudioPlayer: Using temp path: $tempPath');
+    var tempPath = await _getTempPath();
 
     try {
       // Handle different platforms for temp path
       try {
         final tempDir = Directory(tempPath).parent;
         if (!await tempDir.exists()) {
-          debugPrint(
-            'FakeWaveformAudioPlayer: Temp directory doesnt exist, creating it',
-          );
           await tempDir.create(recursive: true);
         }
       } catch (e) {
-        debugPrint(
-          'FakeWaveformAudioPlayer: Error with temp directory, using app documents: $e',
-        );
         // Fallback to a simpler path if needed
-        tempPath =
-            '${Directory.systemTemp.path}/temp_audio_${DateTime.now().millisecondsSinceEpoch}.tmp';
+        try {
+          tempPath = await PathProviderUtil.createTempFilePath(
+            prefix: 'temp_audio',
+            suffix: '.tmp',
+          );
+        } catch (e2) {
+          tempPath =
+              '${Directory.systemTemp.path}/temp_audio_${DateTime.now().millisecondsSinceEpoch}.tmp';
+        }
       }
 
       // First download the file, then load with fake waveform
-      debugPrint('FakeWaveformAudioPlayer: Starting download to: $tempPath');
+
       await AudioService.downloadFile(
         widget.audioPath,
         tempPath,
@@ -168,30 +188,19 @@ class _FakeWaveformAudioPlayerState extends State<FakeWaveformAudioPlayer> {
           widget.callbacks?.onPositionChanged?.call(
             Duration(milliseconds: (progress * 100).round()),
           );
-          debugPrint(
-            'FakeWaveformAudioPlayer: Download progress: ${(progress * 100).round()}%',
-          );
         },
       );
 
-      debugPrint(
-        'FakeWaveformAudioPlayer: Download completed, checking if temp file exists',
-      );
       final file = File(tempPath);
       final exists = await file.exists();
       final size = exists ? await file.length() : 0;
-      debugPrint(
-        'FakeWaveformAudioPlayer: Temp file exists: $exists, size: $size bytes',
-      );
 
       if (!exists || size == 0) {
         throw Exception('Downloaded file is missing or empty: $tempPath');
       }
 
       // Now load the downloaded file
-      debugPrint(
-        'FakeWaveformAudioPlayer: Loading with fake waveform, pattern: ${widget.waveformPattern.name}',
-      );
+
       await _playerService.loadAudioWithFakeWaveform(
         tempPath,
         pattern: widget.waveformPattern,
@@ -203,15 +212,9 @@ class _FakeWaveformAudioPlayerState extends State<FakeWaveformAudioPlayer> {
           _stateManager.waveformData != null &&
           _stateManager.waveformData!.amplitudes.isNotEmpty;
 
-      debugPrint(
-        'FakeWaveformAudioPlayer: Has waveform data: $hasWaveform, length: ${_stateManager.waveformData?.amplitudes.length ?? 0}',
-      );
-
       if (!hasWaveform) {
         // Fallback if waveform wasn't generated
-        debugPrint(
-          'FakeWaveformAudioPlayer: No waveform data was created, using fallback pattern',
-        );
+
         // Try with a simpler pattern as fallback
         await _playerService.loadAudioWithFakeWaveform(
           tempPath,
@@ -219,9 +222,14 @@ class _FakeWaveformAudioPlayerState extends State<FakeWaveformAudioPlayer> {
           samplesPerSecond: widget.samplesPerSecond,
         );
       }
-    } catch (e, stackTrace) {
-      debugPrint('FakeWaveformAudioPlayer: Error loading from URL: $e');
-      debugPrint('FakeWaveformAudioPlayer: Stack trace: $stackTrace');
+    } catch (e) {
+      // Clean up temp file on error
+      try {
+        await PathProviderUtil.cleanupFile(tempPath);
+      } catch (cleanupError) {
+        // Ignore cleanup errors
+      }
+
       rethrow;
     }
   }
@@ -236,13 +244,31 @@ class _FakeWaveformAudioPlayerState extends State<FakeWaveformAudioPlayer> {
   }
 
   void _onSeek(Duration position) {
-    _playerService.seekTo(position);
-    widget.callbacks?.onSeek?.call(position);
+    try {
+      if (!_playerService.isDisposed) {
+        _playerService.seekTo(position);
+        widget.callbacks?.onSeek?.call(position);
+      }
+    } catch (e) {
+      AudioErrorHandler.logError(e, context: 'FakeWaveformAudioPlayer.seek');
+      widget.callbacks?.onError?.call(
+        AudioErrorHandler.getUserFriendlyMessage(e),
+      );
+    }
   }
 
   void _onVolumeChanged(double volume) {
-    _playerService.setVolume(volume);
-    widget.callbacks?.onVolumeChanged?.call(volume);
+    try {
+      if (!_playerService.isDisposed) {
+        _playerService.setVolume(volume);
+        widget.callbacks?.onVolumeChanged?.call(volume);
+      }
+    } catch (e) {
+      AudioErrorHandler.logError(e, context: 'FakeWaveformAudioPlayer.volume');
+      widget.callbacks?.onError?.call(
+        AudioErrorHandler.getUserFriendlyMessage(e),
+      );
+    }
   }
 
   Widget _buildLoadingWidget() {

@@ -74,12 +74,21 @@ class _TrueWaveformAudioPlayerState extends State<TrueWaveformAudioPlayer> {
   }
 
   void _onPlayerStateChanged() {
-    widget.callbacks?.onStateChanged?.call(_stateManager.state);
-    widget.callbacks?.onPositionChanged?.call(_stateManager.position);
-    widget.callbacks?.onDurationChanged?.call(_stateManager.duration);
+    // Check if widget is still mounted and player is not disposed
+    if (!mounted || _playerService.isDisposed) {
+      return;
+    }
 
-    if (_stateManager.hasError && _stateManager.errorMessage != null) {
-      widget.callbacks?.onError?.call(_stateManager.errorMessage!);
+    try {
+      widget.callbacks?.onStateChanged?.call(_stateManager.state);
+      widget.callbacks?.onPositionChanged?.call(_stateManager.position);
+      widget.callbacks?.onDurationChanged?.call(_stateManager.duration);
+
+      if (_stateManager.hasError && _stateManager.errorMessage != null) {
+        widget.callbacks?.onError?.call(_stateManager.errorMessage!);
+      }
+    } catch (e) {
+      // Don't rethrow to avoid breaking the entire widget
     }
   }
 
@@ -94,13 +103,25 @@ class _TrueWaveformAudioPlayerState extends State<TrueWaveformAudioPlayer> {
   }
 
   void _onSeek(Duration position) {
-    _playerService.seekTo(position);
-    widget.callbacks?.onSeek?.call(position);
+    try {
+      if (!_playerService.isDisposed) {
+        _playerService.seekTo(position);
+        widget.callbacks?.onSeek?.call(position);
+      }
+    } catch (e) {
+      widget.callbacks?.onError?.call('Seek failed: ${e.toString()}');
+    }
   }
 
   void _onVolumeChanged(double volume) {
-    _playerService.setVolume(volume);
-    widget.callbacks?.onVolumeChanged?.call(volume);
+    try {
+      if (!_playerService.isDisposed) {
+        _playerService.setVolume(volume);
+        widget.callbacks?.onVolumeChanged?.call(volume);
+      }
+    } catch (e) {
+      widget.callbacks?.onError?.call('Volume change failed: ${e.toString()}');
+    }
   }
 
   Widget _buildLoadingWidget() {

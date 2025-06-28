@@ -11,6 +11,10 @@ export 'src/widgets/audio_player_controls.dart';
 export 'src/widgets/waveform_visualizer.dart';
 export 'src/core/audio_player_service.dart';
 
+// Export utilities
+export 'src/utils/path_provider_util.dart';
+export 'src/utils/audio_error_handler.dart';
+
 /// Main class for audio conversion, trimming, and waveform extraction
 ///
 /// This class provides a high-level API for audio processing operations

@@ -52,15 +52,8 @@ class WaveformVisualizer extends StatelessWidget {
   Widget _buildWaveform(BuildContext context) {
     // Additional check to ensure waveform data is valid
     if (waveformData == null || waveformData!.amplitudes.isEmpty) {
-      debugPrint(
-        'WaveformVisualizer: Waveform data is null or empty, showing placeholder',
-      );
       return _buildPlaceholder();
     }
-
-    debugPrint(
-      'WaveformVisualizer: Building waveform with ${waveformData!.amplitudes.length} samples',
-    );
 
     return GestureDetector(
       onTapDown: config.interactive ? _handleTap : null,

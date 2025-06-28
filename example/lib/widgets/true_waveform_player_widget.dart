@@ -49,21 +49,6 @@ class TrueWaveformPlayerWidget extends StatelessWidget {
             ),
           ),
           callbacks: AudioPlayerCallbacks(
-            onStateChanged: (state) {
-              debugPrint('Player state changed: $state');
-            },
-            onPositionChanged: (position) {
-              debugPrint('Position changed: ${position.inSeconds}s');
-            },
-            onDurationChanged: (duration) {
-              debugPrint('Duration: ${duration.inSeconds}s');
-            },
-            onSeek: (position) {
-              debugPrint('Seeked to: ${position.inSeconds}s');
-            },
-            onVolumeChanged: (volume) {
-              debugPrint('Volume changed: $volume');
-            },
             onError: (error) {
               ScaffoldMessenger.of(
                 context,

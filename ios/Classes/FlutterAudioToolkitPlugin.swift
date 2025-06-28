@@ -708,12 +708,19 @@ private extension FlutterAudioToolkitPlugin {
         let audioSession = AVAudioSession.sharedInstance()
         
         do {
+            // Try the most compatible configuration first
             try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
             try audioSession.setActive(true)
         } catch {
-            // If audio session configuration fails, try with a simpler configuration
-            try audioSession.setCategory(.playback, mode: .default)
-            try audioSession.setActive(true)
+            // Fallback to simpler configuration if the above fails
+            do {
+                try audioSession.setCategory(.playback, mode: .default)
+                try audioSession.setActive(true)
+            } catch {
+                // Last resort - minimal audio session setup
+                try audioSession.setCategory(.ambient, mode: .default)
+                try audioSession.setActive(true)
+            }
         }
     }
     

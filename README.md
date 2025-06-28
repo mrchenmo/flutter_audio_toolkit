@@ -33,7 +33,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  flutter_audio_toolkit: ^0.3.7
+  flutter_audio_toolkit: ^0.3.8
 ```
 
 ## 📖 Usage

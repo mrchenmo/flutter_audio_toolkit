@@ -133,39 +133,16 @@ class AudioPlayerStateManager extends ChangeNotifier {
   /// Sets the waveform data
   void setWaveformData(WaveformData? data) {
     if (data == null) {
-      debugPrint(
-        'AudioPlayerStateManager: Attempted to set null waveform data',
-      );
       return;
     }
 
     if (data.amplitudes.isEmpty) {
-      debugPrint(
-        'AudioPlayerStateManager: Attempted to set empty waveform data',
-      );
       return;
     }
-
-    debugPrint(
-      'AudioPlayerStateManager: Setting waveform data with ${data.amplitudes.length} samples',
-    );
-    debugPrint(
-      'AudioPlayerStateManager: Duration: ${data.durationMs}ms, Sample rate: ${data.sampleRate}, Channels: ${data.channels}',
-    );
 
     // Always set this for streams - do a deep check only if needed
     _waveformData = data;
     notifyListeners();
-
-    // Print a few sample values for debugging
-    if (data.amplitudes.length > 10) {
-      debugPrint(
-        'AudioPlayerStateManager: First 5 amplitudes: ${data.amplitudes.sublist(0, 5)}',
-      );
-      debugPrint(
-        'AudioPlayerStateManager: Last 5 amplitudes: ${data.amplitudes.sublist(data.amplitudes.length - 5)}',
-      );
-    }
   }
 
   /// Sets an error message

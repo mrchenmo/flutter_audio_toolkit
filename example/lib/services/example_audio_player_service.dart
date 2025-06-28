@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_audio_toolkit/flutter_audio_toolkit.dart';
 
@@ -132,16 +131,9 @@ class ExampleAudioPlayerService {
       while (_duration == Duration.zero && retryCount < maxRetries) {
         await Future.delayed(retryDelay);
         retryCount++;
-        debugPrint(
-          'Waiting for duration... attempt $retryCount/$maxRetries, current duration: $_duration',
-        );
       }
 
       _notifyStateCallbacks(AudioPlayerState.stopped);
-
-      debugPrint(
-        'Audio loaded successfully: $audioPath, final duration: $_duration',
-      );
     } catch (e) {
       _state = AudioPlayerState.error;
       _notifyStateCallbacks(AudioPlayerState.error);
@@ -162,9 +154,8 @@ class ExampleAudioPlayerService {
         samplesPerSecond: 100,
       );
       _waveformData = waveformData;
-      debugPrint('Waveform extracted successfully');
     } catch (e) {
-      debugPrint('Warning: Failed to extract waveform data: $e');
+      //'Warning: Failed to extract waveform data: $e');
     }
   }
 
@@ -186,9 +177,8 @@ class ExampleAudioPlayerService {
         samplesPerSecond: samplesPerSecond,
       );
       _waveformData = fakeWaveform;
-      debugPrint('Fake waveform generated successfully');
     } catch (e) {
-      debugPrint('Warning: Failed to generate fake waveform: $e');
+      //'Warning: Failed to generate fake waveform: $e');
     }
   }
 
@@ -198,7 +188,6 @@ class ExampleAudioPlayerService {
 
     try {
       await _audioPlayer.resume();
-      debugPrint('Audio playback started for player: $playerId');
     } catch (e) {
       _notifyErrorCallbacks('Failed to play audio: $e');
       rethrow;
@@ -211,7 +200,6 @@ class ExampleAudioPlayerService {
 
     try {
       await _audioPlayer.pause();
-      debugPrint('Audio playback paused for player: $playerId');
     } catch (e) {
       _notifyErrorCallbacks('Failed to pause audio: $e');
       rethrow;
@@ -225,7 +213,6 @@ class ExampleAudioPlayerService {
     try {
       await _audioPlayer.stop();
       _position = Duration.zero;
-      debugPrint('Audio playback stopped for player: $playerId');
     } catch (e) {
       _notifyErrorCallbacks('Failed to stop audio: $e');
       rethrow;
@@ -244,9 +231,6 @@ class ExampleAudioPlayerService {
         ),
       );
       await _audioPlayer.seek(clampedPosition);
-      debugPrint(
-        'Seeked to position: ${clampedPosition.inSeconds}s for player: $playerId',
-      );
     } catch (e) {
       _notifyErrorCallbacks('Failed to seek: $e');
       rethrow;
@@ -262,7 +246,6 @@ class ExampleAudioPlayerService {
     try {
       await _audioPlayer.setVolume(volume);
       _volume = volume;
-      debugPrint('Volume set to: $volume for player: $playerId');
     } catch (e) {
       _notifyErrorCallbacks('Failed to set volume: $e');
       rethrow;
@@ -287,7 +270,7 @@ class ExampleAudioPlayerService {
     try {
       await _audioPlayer.dispose();
     } catch (e) {
-      debugPrint('Error disposing audio player: $e');
+      //'Error disposing audio player: $e');
     }
 
     _instances.remove(playerId);
@@ -295,8 +278,6 @@ class ExampleAudioPlayerService {
     _positionCallbacks.clear();
     _durationCallbacks.clear();
     _errorCallbacks.clear();
-
-    debugPrint('Audio player disposed: $playerId');
   }
 
   /// Add state change callback
@@ -342,7 +323,7 @@ class ExampleAudioPlayerService {
       try {
         callback(state);
       } catch (e) {
-        debugPrint('Error in state callback: $e');
+        //'Error in state callback: $e');
       }
     }
   }
@@ -352,7 +333,7 @@ class ExampleAudioPlayerService {
       try {
         callback(position);
       } catch (e) {
-        debugPrint('Error in position callback: $e');
+        //'Error in position callback: $e');
       }
     }
   }
@@ -362,7 +343,7 @@ class ExampleAudioPlayerService {
       try {
         callback(duration);
       } catch (e) {
-        debugPrint('Error in duration callback: $e');
+        //'Error in duration callback: $e');
       }
     }
   }
@@ -372,7 +353,7 @@ class ExampleAudioPlayerService {
       try {
         callback(error);
       } catch (e) {
-        debugPrint('Error in error callback: $e');
+        //'Error in error callback: $e');
       }
     }
   }

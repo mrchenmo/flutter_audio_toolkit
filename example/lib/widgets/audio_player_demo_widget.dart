@@ -49,9 +49,7 @@ class _AudioPlayerDemoWidgetState extends State<AudioPlayerDemoWidget>
     super.didUpdateWidget(oldWidget);
     // When file changes, the custom players will handle their own reinitialization
     if (widget.appState.selectedFilePath !=
-        oldWidget.appState.selectedFilePath) {
-      debugPrint('Selected file changed: ${widget.appState.selectedFilePath}');
-    }
+        oldWidget.appState.selectedFilePath) {}
   }
 
   void _initializeExamplePlayer() {
